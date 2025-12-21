@@ -1,0 +1,67 @@
+﻿@model MyLunWen.Models.ViewModels.ProfileViewModel
+
+@{
+    ViewData["Title"] = "Профиль";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    @if (!string.IsNullOrEmpty(Model.ProfilePhoto))
+                    {
+                        <img src="@Model.ProfilePhoto" alt="Profile Photo" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                    }
+                    else
+                    {
+                        <div class="rounded-circle bg-secondary mb-3 mx-auto d-flex align-items-center justify-content-center"
+                             style="width: 150px; height: 150px;">
+                            <span class="text-white" style="font-size: 48px;">
+                                @Model.Username?.Substring(0, 1).ToUpper()
+                            </span>
+                        </div>
+                    }
+                    <h4>@Model.Nickname</h4>
+                    <p class="text-muted">@@@Model.Username</p>
+                    <span class="badge bg-primary">@Model.Role</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4>Информация о профиле</h4>
+                    <a asp-action="EditProfile" class="btn btn-sm btn-outline-primary">Редактировать</a>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+
+                        <dt class="col-sm-3">Никнейм</dt>
+                        <dd class="col-sm-9">@Model.Nickname</dd>
+
+                        <dt class="col-sm-3">Роль</dt>
+                        <dd class="col-sm-9">@Model.Role</dd>
+
+                        <dt class="col-sm-3">О себе</dt>
+                        <dd class="col-sm-9">
+                            @if (!string.IsNullOrEmpty(Model.About))
+                            {
+                                @Model.About
+                            }
+                            else
+                            {
+                                <span class="text-muted">Не указано</span>
+                            }
+                        </dd>
+                    </dl>
+
+                    <div class="mt-4">
+                        <a asp-action="ChangePassword" class="btn btn-warning">Сменить пароль</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
