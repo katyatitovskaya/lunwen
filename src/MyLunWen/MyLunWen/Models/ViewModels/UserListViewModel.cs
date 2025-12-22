@@ -15,8 +15,10 @@ namespace MyLunWen.Models.ViewModels
     {
         public string Id { get; set; }
         public string Username { get; set; }
+        public string Email { get; set; }
         public string Nickname { get; set; }
         public UserRole Role { get; set; }
+        public bool IsEmailConfirmed { get; set; }
         public bool IsLockedOut { get; set; }
         public List<string> Roles { get; set; }
     }

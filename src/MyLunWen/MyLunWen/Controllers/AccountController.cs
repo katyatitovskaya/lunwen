@@ -10,43 +10,35 @@ namespace MyLunWen.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
-        private readonly ILogger<AccountController> _logger;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
         public AccountController(
             UserManager<User> userManager,
             SignInManager<User> signInManager,
-            ILogger<AccountController> logger)
+            RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            _logger = logger;
+            _roleManager = roleManager;
         }
 
-        // GET: /Account/Register
-        [HttpGet]
+        // GET: Account/Register
         public IActionResult Register()
         {
             return View();
         }
 
-        // POST: /Account/Register
+        // POST: Account/Register
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             if (ModelState.IsValid)
             {
-                // Проверяем, не занят ли юзернейм
-                var existingUser = await _userManager.FindByNameAsync(model.Username);
-                if (existingUser != null)
-                {
-                    ModelState.AddModelError("Username", "Этот юзернейм уже занят");
-                    return View(model);
-                }
-
                 var user = new User
                 {
                     UserName = model.Username,
+                    Email = model.Email,
                     Nickname = model.Nickname,
                     Role = model.Role,
                     About = model.About
@@ -56,15 +48,11 @@ namespace MyLunWen.Controllers
 
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation("Пользователь создал новую учетную запись.");
-
                     // Добавляем пользователя в роль
                     await _userManager.AddToRoleAsync(user, model.Role.ToString());
 
                     // Автоматический вход после регистрации
                     await _signInManager.SignInAsync(user, isPersistent: false);
-
-                    _logger.LogInformation("Пользователь вошел в систему после регистрации.");
 
                     return RedirectToAction("Index", "Home");
                 }
@@ -78,86 +66,78 @@ namespace MyLunWen.Controllers
             return View(model);
         }
 
-        // GET: /Account/Login
-        [HttpGet]
-        public IActionResult Login(string? returnUrl = null)
+        // GET: Account/Login
+        public IActionResult Login(string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
 
-        // POST: /Account/Login
+        // POST: Account/Login
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
+        public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
 
             if (ModelState.IsValid)
             {
-                // Пытаемся найти пользователя по username
-                var user = await _userManager.FindByNameAsync(model.Username);
-                if (user == null)
-                {
-                    // Если не нашли по username, пробуем по email
-                    user = await _userManager.FindByEmailAsync(model.Username);
-                }
+                var result = await _signInManager.PasswordSignInAsync(
+                    model.Username,
+                    model.Password,
+                    model.RememberMe,
+                    lockoutOnFailure: false);
 
-                if (user != null)
+                if (result.Succeeded)
                 {
-                    var result = await _signInManager.PasswordSignInAsync(
-                        user.UserName,
-                        model.Password,
-                        model.RememberMe,
-                        lockoutOnFailure: false);
-
-                    if (result.Succeeded)
+                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                     {
-                        _logger.LogInformation("Пользователь вошел в систему.");
-
-                        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-                        {
-                            return Redirect(returnUrl);
-                        }
-                        else
-                        {
-                            return RedirectToAction("Index", "Home");
-                        }
+                        return Redirect(returnUrl);
+                    }
+                    else
+                    {
+                        return RedirectToAction("Index", "Home");
                     }
                 }
-
-                ModelState.AddModelError(string.Empty, "Неверное имя пользователя или пароль.");
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Неверное имя пользователя или пароль.");
+                }
             }
 
             return View(model);
         }
 
-        // POST: /Account/Logout
+        // POST: Account/Logout
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            _logger.LogInformation("Пользователь вышел из системы.");
             return RedirectToAction("Index", "Home");
         }
 
-        // GET: /Account/Profile
+        // GET: Account/AccessDenied
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
+        // GET: Account/Profile
         [HttpGet]
-        [Authorize]
         public async Task<IActionResult> Profile()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return NotFound();
             }
 
             var model = new ProfileViewModel
             {
                 Username = user.UserName,
                 Nickname = user.Nickname,
-                Role = user.Role.ToString(),
+                Role = user.Role,
                 About = user.About,
                 ProfilePhoto = user.ProfilePhoto
             };
@@ -165,15 +145,14 @@ namespace MyLunWen.Controllers
             return View(model);
         }
 
-        // GET: /Account/EditProfile
+        // GET: Account/EditProfile
         [HttpGet]
-        [Authorize]
         public async Task<IActionResult> EditProfile()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return NotFound();
             }
 
             var model = new EditProfileViewModel
@@ -186,10 +165,9 @@ namespace MyLunWen.Controllers
             return View(model);
         }
 
-        // POST: /Account/EditProfile
+        // POST: Account/EditProfile
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize]
         public async Task<IActionResult> EditProfile(EditProfileViewModel model)
         {
             if (ModelState.IsValid)
@@ -197,7 +175,7 @@ namespace MyLunWen.Controllers
                 var user = await _userManager.GetUserAsync(User);
                 if (user == null)
                 {
-                    return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                    return NotFound();
                 }
 
                 user.Nickname = model.Nickname;
@@ -207,8 +185,7 @@ namespace MyLunWen.Controllers
                 var result = await _userManager.UpdateAsync(user);
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation("Пользователь обновил свой профиль.");
-                    TempData["SuccessMessage"] = "Профиль успешно обновлен!";
+                    ViewBag.SuccessMessage = "Профиль успешно обновлен.";
                     return RedirectToAction("Profile");
                 }
 
@@ -221,18 +198,16 @@ namespace MyLunWen.Controllers
             return View(model);
         }
 
-        // GET: /Account/ChangePassword
+        // GET: Account/ChangePassword
         [HttpGet]
-        [Authorize]
         public IActionResult ChangePassword()
         {
             return View();
         }
 
-        // POST: /Account/ChangePassword
+        // POST: Account/ChangePassword
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
             if (ModelState.IsValid)
@@ -240,7 +215,7 @@ namespace MyLunWen.Controllers
                 var user = await _userManager.GetUserAsync(User);
                 if (user == null)
                 {
-                    return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                    return NotFound();
                 }
 
                 var result = await _userManager.ChangePasswordAsync(
@@ -251,9 +226,8 @@ namespace MyLunWen.Controllers
                 if (result.Succeeded)
                 {
                     await _signInManager.RefreshSignInAsync(user);
-                    _logger.LogInformation("Пользователь изменил свой пароль.");
-                    TempData["SuccessMessage"] = "Пароль успешно изменен!";
-                    return RedirectToAction("Profile");
+                    ViewBag.SuccessMessage = "Пароль успешно изменен.";
+                    return View();
                 }
 
                 foreach (var error in result.Errors)
@@ -263,49 +237,6 @@ namespace MyLunWen.Controllers
             }
 
             return View(model);
-        }
-
-        // GET: /Account/AccessDenied
-        [HttpGet]
-        public IActionResult AccessDenied()
-        {
-            return View();
-        }
-
-        // AJAX проверка уникальности юзернейма
-        [AcceptVerbs("GET", "POST")]
-        public async Task<IActionResult> VerifyUsername(string username)
-        {
-            var user = await _userManager.FindByNameAsync(username);
-            if (user != null)
-            {
-                return Json($"Юзернейм '{username}' уже занят");
-            }
-
-            // Проверка формата
-            if (string.IsNullOrWhiteSpace(username) || username.Length < 3 || username.Length > 30)
-            {
-                return Json("Юзернейм должен быть от 3 до 30 символов");
-            }
-
-            if (!System.Text.RegularExpressions.Regex.IsMatch(username, @"^[a-zA-Z0-9_\.]+$"))
-            {
-                return Json("Только буквы, цифры, точки и нижние подчеркивания");
-            }
-
-            return Json(true);
-        }
-
-        private IActionResult RedirectToLocal(string returnUrl)
-        {
-            if (Url.IsLocalUrl(returnUrl))
-            {
-                return Redirect(returnUrl);
-            }
-            else
-            {
-                return RedirectToAction("Index", "Home");
-            }
         }
     }
 }

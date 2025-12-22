@@ -3,10 +3,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using MyLunWen.Data;
 using MyLunWen.Models;
-using System.Threading.Tasks;
 using MyLunWen.Models.ViewModels;
+using System.Threading.Tasks;
 
 namespace MyLunWen.Controllers
 {
@@ -64,8 +65,10 @@ namespace MyLunWen.Controllers
                 {
                     Id = u.Id,
                     Username = u.UserName,
+                    Email = u.Email,
                     Nickname = u.Nickname,
                     Role = u.Role,
+                    IsEmailConfirmed = u.EmailConfirmed,
                     IsLockedOut = u.LockoutEnd.HasValue && u.LockoutEnd > DateTimeOffset.Now
                 })
                 .ToListAsync();
@@ -110,10 +113,12 @@ namespace MyLunWen.Controllers
             {
                 Id = user.Id,
                 Username = user.UserName,
+                Email = user.Email,
                 Nickname = user.Nickname,
                 Role = user.Role,
                 About = user.About,
                 ProfilePhoto = user.ProfilePhoto,
+                EmailConfirmed = user.EmailConfirmed,
                 IsLockedOut = user.LockoutEnd.HasValue && user.LockoutEnd > DateTimeOffset.Now,
                 LockoutEnd = user.LockoutEnd,
                 AccessFailedCount = user.AccessFailedCount,
@@ -149,11 +154,21 @@ namespace MyLunWen.Controllers
                     return View(model);
                 }
 
+                // Проверка уникальности email
+                existingUser = await _userManager.FindByEmailAsync(model.Email);
+                if (existingUser != null)
+                {
+                    ModelState.AddModelError("Email", "Этот email уже используется");
+                    return View(model);
+                }
+
                 var user = new User
                 {
                     UserName = model.Username,
+                    Email = model.Email,
                     Nickname = model.Nickname,
-                    Role = model.Role
+                    Role = model.Role,
+                    EmailConfirmed = model.EmailConfirmed
                 };
 
                 var result = await _userManager.CreateAsync(user, model.Password);
@@ -202,10 +217,12 @@ namespace MyLunWen.Controllers
             {
                 Id = user.Id,
                 Username = user.UserName,
+                Email = user.Email,
                 Nickname = user.Nickname,
                 Role = user.Role,
                 About = user.About,
                 ProfilePhoto = user.ProfilePhoto,
+                EmailConfirmed = user.EmailConfirmed,
                 AvailableRoles = _roleManager.Roles.Select(r => r.Name).ToList()
             };
 
@@ -230,11 +247,24 @@ namespace MyLunWen.Controllers
                     return NotFound();
                 }
 
-                
+                // Проверяем, изменился ли email и не занят ли он другим пользователем
+                if (user.Email != model.Email)
+                {
+                    var existingUser = await _userManager.FindByEmailAsync(model.Email);
+                    if (existingUser != null && existingUser.Id != user.Id)
+                    {
+                        ModelState.AddModelError("Email", "Этот email уже используется другим пользователем");
+                        model.AvailableRoles = _roleManager.Roles.Select(r => r.Name).ToList();
+                        return View(model);
+                    }
+                    user.Email = model.Email;
+                }
+
                 user.Nickname = model.Nickname;
                 user.Role = model.Role;
                 user.About = model.About;
                 user.ProfilePhoto = model.ProfilePhoto;
+                user.EmailConfirmed = model.EmailConfirmed;
 
                 var result = await _userManager.UpdateAsync(user);
                 if (result.Succeeded)

@@ -9,6 +9,11 @@ namespace MyLunWen.Models.ViewModels
         [Display(Name = "Имя пользователя")]
         public string Username { get; set; }
 
+        [Required(ErrorMessage = "Email обязателен")]
+        [EmailAddress(ErrorMessage = "Некорректный email адрес")]
+        [Display(Name = "Email")]
+        public string Email { get; set; }
+
         [Display(Name = "Никнейм")]
         public string Nickname { get; set; }
 

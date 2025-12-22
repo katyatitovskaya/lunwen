@@ -12,7 +12,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Настройка Identity
 builder.Services.AddIdentity<User, IdentityRole>(options =>
 {
-    options.User.RequireUniqueEmail = false;
     // Настройки пароля
     options.Password.RequireDigit = true;
     options.Password.RequiredLength = 6;

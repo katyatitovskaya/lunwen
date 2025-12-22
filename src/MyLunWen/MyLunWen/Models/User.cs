@@ -15,6 +15,9 @@ namespace MyLunWen.Models
         [Required]
         public UserRole Role { get; set; }
 
+        [Required]
+        public string Email {  get; set; }
+
         public string ProfilePhoto { get; set; }
 
         [MaxLength(500)]

@@ -10,7 +10,11 @@ namespace MyLunWen.Models.ViewModels
         [Display(Name = "Юзернейм")]
         public string Username { get; set; }
 
-        
+        [Required(ErrorMessage = "Email обязателен")]
+        [EmailAddress(ErrorMessage = "Некорректный email")]
+        [Display(Name = "Email")]
+        public string Email { get; set; }
+
         [Display(Name = "Никнейм")]
         public string Nickname { get; set; }
 
@@ -28,6 +32,9 @@ namespace MyLunWen.Models.ViewModels
         [Display(Name = "Подтвердите пароль")]
         [Compare("Password", ErrorMessage = "Пароли не совпадают")]
         public string ConfirmPassword { get; set; }
+
+        [Display(Name = "Подтвердить email")]
+        public bool EmailConfirmed { get; set; } = true;
 
         public List<string> AvailableRoles { get; set; }
     }

@@ -6,10 +6,12 @@ namespace MyLunWen.Models.ViewModels
     {
         public string Id { get; set; }
         public string Username { get; set; }
+        public string Email { get; set; }
         public string Nickname { get; set; }
         public UserRole Role { get; set; }
         public string About { get; set; }
         public string ProfilePhoto { get; set; }
+        public bool EmailConfirmed { get; set; }
         public bool IsLockedOut { get; set; }
         public DateTimeOffset? LockoutEnd { get; set; }
         public int AccessFailedCount { get; set; }
