@@ -15,7 +15,8 @@ namespace Try2.Data
         public DbSet<StudyGroup> StudyGroups { get; set; }
         public DbSet<Post> Posts { get; set; }
         public DbSet<Comment> Comments { get; set; }
-        public DbSet<PostLike> Likes { get; set; }
+        public DbSet<PostLike> PostLikes { get; set; }
+        public DbSet<CommentLike> CommentLikes { get; set; }
         public DbSet<Subscription> Subscriptions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
