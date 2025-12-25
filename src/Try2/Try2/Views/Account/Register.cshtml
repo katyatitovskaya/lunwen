@@ -1,0 +1,191 @@
+﻿@model Try2.Models.DTOs.RegisterDto
+
+@{
+    ViewData["Title"] = "Регистрация";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card mt-5">
+            <div class="card-header">
+                <h3 class="text-center">Регистрация нового аккаунта</h3>
+            </div>
+            <div class="card-body">
+                <form asp-action="Register" method="post" id="registerForm">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Username" class="form-label">Имя пользователя *</label>
+                            <input asp-for="Username" class="form-control"
+                                   id="usernameInput" minlength="3" required />
+                            <span asp-validation-for="Username" class="text-danger"></span>
+                            <div class="form-text">Минимум 3 символа, только буквы и цифры</div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Nickname" class="form-label">Отображаемое имя</label>
+                            <input asp-for="Nickname" class="form-control" />
+                            <span asp-validation-for="Nickname" class="text-danger"></span>
+                            <div class="form-text">Как вас будут видеть другие пользователи</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label">Пароль *</label>
+                        <input asp-for="Password" type="password" class="form-control"
+                               id="passwordInput" minlength="6" required />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                        <div class="form-text">Минимум 6 символов</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Role" class="form-label">Роль *</label>
+                        <select asp-for="Role" class="form-select"
+                                asp-items="Html.GetEnumSelectList<Try2.Models.Enums.UserRole>()" required>
+                            <option value="">Выберите роль</option>
+                        </select>
+                        <span asp-validation-for="Role" class="text-danger"></span>
+                        <div class="form-text">Выберите роль для доступа к функционалу системы</div>
+                    </div>
+
+                    <div class="d-grid gap-2 mb-3">
+                        <button type="submit" class="btn btn-success"
+                                id="submitButton">
+                            Зарегистрироваться
+                        </button>
+                    </div>
+
+                    <div class="text-center">
+                        <p>Уже есть аккаунт? <a asp-action="Login">Войти</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('registerForm');
+            const submitButton = document.getElementById('submitButton');
+            const usernameInput = document.getElementById('usernameInput');
+            const passwordInput = document.getElementById('passwordInput');
+            const roleSelect = document.querySelector('select[name="Role"]');
+
+            // Проверка доступности имени пользователя (опционально)
+            usernameInput.addEventListener('blur', function() {
+                const username = this.value.trim();
+                if (username.length < 3) return;
+
+                // Если у вас есть API для проверки имени пользователя
+                // fetch('/Account/CheckUsername', {
+                //     method: 'POST',
+                //     headers: {
+                //         'Content-Type': 'application/json',
+                //     },
+                //     body: JSON.stringify({ username: username })
+                // })
+                // .then(response => response.json())
+                // .then(data => {
+                //     const span = this.nextElementSibling;
+                //     if (!data.isAvailable) {
+                //         span.textContent = 'Это имя пользователя уже занято';
+                //         span.classList.add('text-danger');
+                //         span.classList.remove('text-success');
+                //     } else {
+                //         span.textContent = 'Имя пользователя доступно';
+                //         span.classList.remove('text-danger');
+                //         span.classList.add('text-success');
+                //     }
+                // });
+            });
+
+            // Показать/скрыть пароль
+            function addPasswordToggle(inputElement) {
+                const toggle = document.createElement('span');
+                toggle.innerHTML = '👁️';
+                toggle.style.cursor = 'pointer';
+                toggle.style.position = 'absolute';
+                toggle.style.right = '10px';
+                toggle.style.top = '50%';
+                toggle.style.transform = 'translateY(-50%)';
+                toggle.style.zIndex = '10';
+
+                const container = inputElement.parentElement;
+                container.style.position = 'relative';
+                container.appendChild(toggle);
+
+                toggle.addEventListener('click', function() {
+                    const type = inputElement.getAttribute('type') === 'password' ? 'text' : 'password';
+                    inputElement.setAttribute('type', type);
+                    this.innerHTML = type === 'password' ? '👁️' : '👁️‍🗨️';
+                });
+            }
+
+            addPasswordToggle(passwordInput);
+
+            // Автозаполнение никнейма на основе имени пользователя
+            const nicknameInput = document.querySelector('input[name="Nickname"]');
+            usernameInput.addEventListener('blur', function() {
+                if (nicknameInput.value === '' && this.value.trim() !== '') {
+                    nicknameInput.value = this.value.trim();
+                }
+            });
+
+            // Валидация формы перед отправкой
+            form.addEventListener('submit', function(e) {
+                let isValid = true;
+
+                // Проверка имени пользователя
+                if (usernameInput.value.trim().length < 3) {
+                    isValid = false;
+                    usernameInput.classList.add('is-invalid');
+                } else {
+                    usernameInput.classList.remove('is-invalid');
+                }
+
+                // Проверка пароля
+                if (passwordInput.value.length < 6) {
+                    isValid = false;
+                    passwordInput.classList.add('is-invalid');
+                } else {
+                    passwordInput.classList.remove('is-invalid');
+                }
+
+                // Проверка роли
+                if (!roleSelect.value) {
+                    isValid = false;
+                    roleSelect.classList.add('is-invalid');
+                } else {
+                    roleSelect.classList.remove('is-invalid');
+                }
+
+                if (!isValid) {
+                    e.preventDefault();
+                    alert('Пожалуйста, заполните все обязательные поля правильно');
+                }
+            });
+
+            // Снятие отметки об ошибке при вводе
+            usernameInput.addEventListener('input', function() {
+                if (this.value.trim().length >= 3) {
+                    this.classList.remove('is-invalid');
+                }
+            });
+
+            passwordInput.addEventListener('input', function() {
+                if (this.value.length >= 6) {
+                    this.classList.remove('is-invalid');
+                }
+            });
+
+            roleSelect.addEventListener('change', function() {
+                if (this.value) {
+                    this.classList.remove('is-invalid');
+                }
+            });
+        });
+    </script>
+}

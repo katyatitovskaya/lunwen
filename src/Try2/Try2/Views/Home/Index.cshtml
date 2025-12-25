@@ -1,8 +1,46 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿@using Try2.ViewModels
+@model FeedViewModel
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<h2>Лента</h2>
+
+<div>
+    <button onclick="showTab('all')">Все посты</button>
+    <button onclick="showTab('subs')">Подписки</button>
 </div>
+
+<hr />
+
+<div id="all">
+    @foreach (var post in Model.AllPosts)
+    {
+        <partial name="_PostCard" model="post" />
+    }
+</div>
+
+<div id="subs" style="display:none">
+    @if (Model.SubscriptionPosts == null)
+    {
+        <p>Войдите, чтобы видеть посты подписок</p>
+        <a asp-controller="Account" asp-action="Login">Войти</a>
+        <p>Нет аккаунта?</p>
+        <a asp-controller="Account" asp-action="Register">Зарегистрируйтесь</a>
+    }
+    else if (!Model.SubscriptionPosts.Any())
+    {
+        <p>У вас пока нет подписок</p>
+    }
+    else
+    {
+        foreach (var post in Model.SubscriptionPosts)
+        {
+            <partial name="_PostCard" model="post" />
+        }
+    }
+</div>
+
+<script>
+    function showTab(tab) {
+        document.getElementById("all").style.display = tab === "all" ? "block" : "none";
+        document.getElementById("subs").style.display = tab === "subs" ? "block" : "none";
+    }
+</script>
