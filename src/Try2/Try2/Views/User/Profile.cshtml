@@ -1,0 +1,47 @@
+﻿@model Try2.ViewModels.UserProfileViewModel
+
+<div class="profile-container">
+    <div class="profile-header">
+        <div class="avatar">👤</div>
+
+        <div class="info">
+            <h2>@Model.Nickname</h2>
+            <p>@Model.Username</p>
+            <p>@Model.Role</p>
+            <p>@Model.Bio</p>
+
+            <div class="stats">
+                <span>Подписчики: @Model.FollowersCount</span>
+                <span>Подписки: @Model.FollowingCount</span>
+            </div>
+
+            @if (!Model.IsCurrentUser)
+            {
+                <form method="post"
+                      asp-action="@(Model.IsFollowedByCurrentUser ? "Unfollow" : "Follow")"
+                      asp-route-userId="@Model.UserId">
+                    <button type="submit">
+                        @(Model.IsFollowedByCurrentUser ? "Отписаться" : "Подписаться")
+                    </button>
+                </form>
+            }
+            else
+            {
+                <a asp-controller="Post" asp-action="Create">Написать пост</a>
+            }
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="posts">
+        @foreach (var post in Model.Posts)
+        {
+            <div class="post">
+                <p>@post.Text</p>
+                <small>@post.PublicationDate</small>
+                <div>❤️ @post.LikesCount</div>
+            </div>
+        }
+    </div>
+</div>

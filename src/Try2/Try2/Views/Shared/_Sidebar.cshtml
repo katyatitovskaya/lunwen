@@ -1,0 +1,25 @@
+﻿@using System.Security.Claims
+<div class="sidebar">
+    <a asp-controller="Home" asp-action="Index">Главная</a>
+
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <a asp-controller="User"
+           asp-action="Profile"
+           asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)">
+            Профиль
+        </a>
+
+        <a asp-controller="Notebook" asp-action="Index">Тетради</a>
+        <form asp-controller="Account"
+              asp-action="Logout"
+              method="post">
+            <button type="submit">Выйти</button>
+        </form>
+    }
+    else
+    {
+        <a asp-controller="Account" asp-action="Login">Войти</a>
+        <a asp-controller="Account" asp-action="Register">Регистрация</a>
+    }
+</div>
