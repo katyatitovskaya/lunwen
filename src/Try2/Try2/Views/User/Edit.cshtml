@@ -1,5 +1,44 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿@model Try2.Models.DTOs.UserProfileDto
+
+<h2>Редактирование профиля</h2>
+
+<form asp-action="Edit"
+      method="post"
+      enctype="multipart/form-data">
+
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+
+    @if (!string.IsNullOrEmpty(Model.ProfilePhotoPath))
+    {
+        <div>
+            <img src="@Model.ProfilePhotoPath"
+                 style="width:120px; height:120px; border-radius:50%" />
+        </div>
+    }
+
+    <div>
+        <label>Новое фото</label>
+        <input asp-for="ProfilePhoto" type="file" accept="image/*" />
+    </div>
+
+    <div>
+        <label>Никнейм</label>
+        <input asp-for="Nickname" />
+    </div>
+    <div>
+        <label>Username</label>
+        <input asp-for="Username" />
+        <span asp-validation-for="Username"></span>
+    </div>
+
+    <div>
+        <label>Био</label>
+        <textarea asp-for="Bio" rows="4"></textarea>
+    </div>
+
+    <br />
+
+    <button type="submit">💾 Сохранить</button>
+    <a asp-action="Profile" asp-route-id="@Model.Id">Отмена</a>
+</form>

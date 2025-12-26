@@ -14,7 +14,9 @@ namespace Try2.Models.DTOs
 
         public string? Bio { get; set; }
 
-        public string? ProfilePhoto { get; set; }
+        public string? ProfilePhotoPath { get; set; }
+
+        public IFormFile? ProfilePhoto { get; set; }
 
         public int FollowersCount { get; set; }
 

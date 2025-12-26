@@ -1,60 +1,356 @@
 ﻿@using Try2.Models.Enums
 @model Try2.Models.DTOs.NotebookDetailsDto
 
+<style>
+    /* Стили для страницы редактирования тетради - компактные */
 
-<a asp-action="Details" asp-route-id="@Model.Id">
-    ← Назад к просмотру
-</a>
+    .edit-notebook-container {
+        width: 100%;
+        margin: 0;
+        padding: 10px;
+        background-color: #FFF8E1;
+    }
 
-<h2>Редактирование тетради</h2>
+    /* Заголовок */
+    .edit-header {
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #FFB74D;
+    }
 
-<h3>Добавить участника</h3>
-<form asp-action="AddUser" method="post">
-    <input type="hidden" name="notebookId" value="@Model.Id" />
+    .back-link {
+        display: inline-block;
+        padding: 6px 12px;
+        background-color: #FFE0B2;
+        color: #2E7D32;
+        text-decoration: none;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border: 1px solid #FFB74D;
+        margin-bottom: 10px;
+        transition: all 0.2s ease;
+    }
 
-    <input name="username" placeholder="Username" />
+        .back-link:hover {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #388E3C;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
 
-    <button type="submit">Добавить</button>
-</form>
+    .edit-title {
+        color: #E65100;
+        font-size: 1.5rem;
+        margin: 0;
+        padding: 0;
+    }
 
-<h3>Участники</h3>
+    /* Общие стили для секций */
+    .section {
+        width: 100%;
+        margin-bottom: 15px;
+        padding: 12px;
+        background-color: #FFECB3;
+        border-radius: 6px;
+        border: 1px solid #FFB74D;
+    }
 
-@foreach (var u in Model.Users)
-{
-    <div>
-        @u.Nickname (@u.Username) — @u.Role
-        <form asp-action="RemoveUser" method="post" style="display:inline">
+    .section-title {
+        color: #F57C00;
+        font-size: 1.1rem;
+        margin: 0 0 8px 0;
+        padding: 0 0 5px 0;
+        border-bottom: 1px solid #FFCC80;
+        width: 100%;
+    }
+
+    /* Форма добавления пользователя */
+    .add-user-form {
+        width: 100%;
+        background: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+        box-shadow: none;
+    }
+
+    .form-field {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .form-label {
+        display: block;
+        color: #E65100;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 4px;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 8px 10px;
+        border: 1px solid #FFB74D;
+        border-radius: 4px;
+        background-color: white;
+        color: #5D4037;
+        font-size: 0.95rem;
+        transition: border-color 0.2s ease;
+    }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+        }
+
+        .form-input::placeholder {
+            color: #FF9800;
+            opacity: 0.7;
+        }
+
+    /* Текстовое поле */
+    .form-textarea {
+        width: 100%;
+        padding: 8px 10px;
+        border: 1px solid #FFB74D;
+        border-radius: 4px;
+        background-color: white;
+        color: #5D4037;
+        font-size: 0.95rem;
+        font-family: inherit;
+        line-height: 1.4;
+        min-height: 200px;
+        resize: vertical;
+        transition: border-color 0.2s ease;
+    }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+        }
+
+    /* Кнопки */
+    .submit-btn,
+    .save-btn {
+        padding: 8px 16px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+    }
+
+        .submit-btn:hover,
+        .save-btn:hover {
+            background-color: #388E3C;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.15);
+        }
+
+    /* Участники */
+    .participants-list {
+        width: 100%;
+    }
+
+    .participant-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 6px 8px;
+        margin-bottom: 4px;
+        background-color: white;
+        border-radius: 4px;
+        border-left: 3px solid #4CAF50;
+        width: 100%;
+    }
+
+    .participant-info {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.9rem;
+    }
+
+        .participant-info strong {
+            color: #E65100;
+            font-size: 0.9rem;
+        }
+
+        .participant-info .username {
+            color: #4CAF50;
+            font-size: 0.85rem;
+        }
+
+        .participant-info .role {
+            color: #5D4037;
+            font-size: 0.85rem;
+        }
+
+    /* Кнопка удаления участника */
+    .remove-user-form {
+        margin: 0;
+        padding: 0;
+        background: none;
+        border: none;
+        box-shadow: none;
+        display: inline;
+    }
+
+    .remove-btn {
+        padding: 4px 8px;
+        background-color: #FFE0B2;
+        color: #D84315;
+        border: 1px solid #FFB74D;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        min-width: 32px;
+    }
+
+        .remove-btn:hover {
+            background-color: #FF5722;
+            color: white;
+            border-color: #D84315;
+            transform: scale(1.1);
+        }
+
+    /* Действия формы редактирования */
+    .form-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .cancel-link {
+        padding: 8px 16px;
+        background-color: #FFE0B2;
+        color: #5D4037;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        border: 1px solid #FFB74D;
+        transition: all 0.2s ease;
+    }
+
+        .cancel-link:hover {
+            background-color: #FFCC80;
+            color: #E65100;
+            text-decoration: none;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+    
+    /* Убираем лишние отступы */
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    h2, h3, p, div {
+        margin-top: 0;
+    }
+
+    /* Специфичные стили для форм */
+    .edit-form {
+        width: 100%;
+        background: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+        box-shadow: none;
+    }
+</style>
+
+<div class="edit-notebook-container">
+    <!-- Заголовок и кнопка назад -->
+    <div class="edit-header">
+        <a asp-action="Details" asp-route-id="@Model.Id" class="back-link">
+            ← Назад к просмотру
+        </a>
+        <h2 class="edit-title">Редактирование тетради</h2>
+    </div>
+
+    <!-- Добавить участника -->
+    <div class="section add-user-section">
+        <h3 class="section-title">Добавить участника</h3>
+        <form asp-action="AddUser" method="post" class="add-user-form">
             <input type="hidden" name="notebookId" value="@Model.Id" />
-            <input type="hidden" name="userId" value="@u.UserId" />
-            @if(u.Role == StudyGroupRole.Participant)
-            {
-                <button type="submit">❌</button>
-            }
-            
+
+            <div class="form-field">
+                <input name="username" placeholder="Введите username пользователя" class="form-input" />
+            </div>
+
+            <button type="submit" class="submit-btn">Добавить</button>
         </form>
     </div>
-}
 
-<hr />
+    <!-- Список участников -->
+    <div class="section participants-section">
+        <h3 class="section-title">Участники</h3>
+        <div class="participants-list">
+            @foreach (var u in Model.Users)
+            {
+                <div class="participant-item">
+                    <div class="participant-info">
+                        <strong>@u.Nickname</strong>
+                        <span class="username">(@u.Username)</span>
+                        <span class="role">— @u.Role</span>
+                    </div>
 
-<form asp-action="Edit" method="post">
-    @Html.AntiForgeryToken()
-    <input type="hidden" asp-for="Id" />
+                    @if (u.Role == StudyGroupRole.Participant)
+                    {
+                        <form asp-action="RemoveUser" method="post" class="remove-user-form">
+                            <input type="hidden" name="notebookId" value="@Model.Id" />
+                            <input type="hidden" name="userId" value="@u.UserId" />
+                            <button type="submit" class="remove-btn">❌</button>
+                        </form>
+                    }
+                </div>
+            }
+        </div>
+    </div>
 
-    <label>Название</label>
-    <input asp-for="Name" />
+    <!-- Редактирование тетради -->
+    <div class="section edit-section">
+        <form asp-action="Edit" method="post" class="edit-form">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
 
-    <label>Описание</label>
-    <input asp-for="Description" />
+            <div class="form-field">
+                <label class="form-label">Название</label>
+                <input asp-for="Name" class="form-input" />
+            </div>
 
-    <label>Текст</label>
-    <textarea asp-for="Text" rows="10"></textarea>
+            <div class="form-field">
+                <label class="form-label">Описание</label>
+                <input asp-for="Description" class="form-input" />
+            </div>
 
-    <button type="submit">Сохранить</button>
-    <a asp-action="Details" asp-route-id="@Model.Id">Отмена</a>
-</form>
+            <div class="form-field">
+                <label class="form-label">Текст</label>
+                <textarea asp-for="Text" rows="10" class="form-textarea"></textarea>
+            </div>
 
-<hr />
-
-
-
+            <div class="form-actions">
+                <button type="submit" class="save-btn">Сохранить</button>
+                <a asp-action="Details" asp-route-id="@Model.Id" class="cancel-link">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>

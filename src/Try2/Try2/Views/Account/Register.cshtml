@@ -79,27 +79,6 @@
                 const username = this.value.trim();
                 if (username.length < 3) return;
 
-                // Если у вас есть API для проверки имени пользователя
-                // fetch('/Account/CheckUsername', {
-                //     method: 'POST',
-                //     headers: {
-                //         'Content-Type': 'application/json',
-                //     },
-                //     body: JSON.stringify({ username: username })
-                // })
-                // .then(response => response.json())
-                // .then(data => {
-                //     const span = this.nextElementSibling;
-                //     if (!data.isAvailable) {
-                //         span.textContent = 'Это имя пользователя уже занято';
-                //         span.classList.add('text-danger');
-                //         span.classList.remove('text-success');
-                //     } else {
-                //         span.textContent = 'Имя пользователя доступно';
-                //         span.classList.remove('text-danger');
-                //         span.classList.add('text-success');
-                //     }
-                // });
             });
 
             // Показать/скрыть пароль

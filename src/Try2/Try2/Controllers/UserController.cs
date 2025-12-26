@@ -46,6 +46,7 @@ namespace Try2.Controllers
                 Nickname = user.Nickname,
                 Role = user.Role,
                 Bio = user.Bio,
+                ProfilePhotoPath = user.ProfilePhoto,
 
                 FollowersCount = await _context.Subscriptions
                     .CountAsync(s => s.TargetUserId == user.Id),
@@ -124,5 +125,83 @@ namespace Try2.Controllers
 
             return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit()
+        {
+            int? currentUserId = GetCurrentUserId();
+            if (currentUserId == null)
+                return RedirectToAction("Login", "Account");
+
+            var user = await _context.Users.FindAsync(currentUserId.Value);
+            if (user == null)
+                return NotFound();
+
+            return View(new UserProfileDto
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Nickname = user.Nickname,
+                Bio = user.Bio,
+                ProfilePhotoPath = user.ProfilePhoto
+            });
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(UserProfileDto dto)
+        {
+            int? currentUserId = GetCurrentUserId();
+            if (currentUserId == null || currentUserId != dto.Id)
+                return Forbid();
+
+            if (!ModelState.IsValid)
+                return View(dto);
+
+            var user = await _context.Users.FindAsync(dto.Id);
+            if (user == null)
+                return NotFound();
+
+            // проверка username
+            bool usernameTaken = await _context.Users.AnyAsync(u =>
+                u.Username == dto.Username && u.Id != dto.Id);
+
+            if (usernameTaken)
+            {
+                ModelState.AddModelError("Username", "Этот username уже занят");
+                return View(dto);
+            }
+
+            user.Username = dto.Username;
+            user.Nickname = dto.Nickname;
+            user.Bio = dto.Bio;
+
+            // 📸 ЗАГРУЗКА ФОТО
+            if (dto.ProfilePhoto != null && dto.ProfilePhoto.Length > 0)
+            {
+                var uploadsFolder = Path.Combine(
+                    Directory.GetCurrentDirectory(),
+                    "wwwroot/uploads/avatars");
+
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                var fileExtension = Path.GetExtension(dto.ProfilePhoto.FileName);
+                var fileName = $"user_{user.Id}{fileExtension}";
+                var filePath = Path.Combine(uploadsFolder, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await dto.ProfilePhoto.CopyToAsync(stream);
+                }
+
+                user.ProfilePhoto = $"/uploads/avatars/{fileName}";
+            }
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Profile", new { id = user.Id });
+        }
+
+
     }
 }

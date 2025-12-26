@@ -29,3 +29,111 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+/* Основной контейнер */
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Боковая панель */
+.sidebar {
+    width: 250px;
+    background-color: #f8f9fa;
+    border-right: 1px solid #dee2e6;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+    /* Стили для ссылок в сайдбаре */
+    .sidebar a {
+        display: block;
+        padding: 10px 15px;
+        margin-bottom: 10px;
+        color: #333;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+
+        .sidebar a:hover {
+            background-color: #e9ecef;
+            color: #007bff;
+        }
+
+    /* Кнопка выхода в форме */
+    .sidebar form {
+        margin-top: auto; /* Прижимаем кнопку выхода к низу */
+    }
+
+    .sidebar button {
+        width: 100%;
+        padding: 10px 15px;
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+        .sidebar button:hover {
+            background-color: #c82333;
+        }
+
+/* Основное содержимое */
+.content {
+    flex: 1;
+    margin-left: 250px; /* Отступ равен ширине сайдбара */
+    padding: 20px;
+    min-height: 100vh;
+    background-color: #fff;
+}
+
+.post-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.post-card {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 12px;
+    background: white;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
+}
+
+    .post-card:hover {
+        background: #f9f9f9;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+.post-header {
+    font-size: 14px;
+    margin-bottom: 6px;
+}
+
+.username {
+    color: gray;
+    margin-left: 6px;
+}
+
+.post-text {
+    font-size: 16px;
+    margin: 8px 0;
+}
+
+.post-footer {
+    font-size: 13px;
+    color: gray;
+}
+

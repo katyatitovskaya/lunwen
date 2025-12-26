@@ -10,48 +10,6 @@
 
 <hr />
 
-<style>
-    .post-link {
-        text-decoration: none;
-        color: inherit;
-    }
-
-    .post-card {
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        padding: 12px;
-        margin-bottom: 12px;
-        background: white;
-        cursor: pointer;
-        transition: background 0.2s, box-shadow 0.2s;
-    }
-
-        .post-card:hover {
-            background: #f9f9f9;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-    .post-header {
-        font-size: 14px;
-        margin-bottom: 6px;
-    }
-
-    .username {
-        color: gray;
-        margin-left: 6px;
-    }
-
-    .post-text {
-        font-size: 16px;
-        margin: 8px 0;
-    }
-
-    .post-footer {
-        font-size: 13px;
-        color: gray;
-    }
-
-</style>
 
 <div id="all">
     @foreach (var post in Model.AllPosts)
