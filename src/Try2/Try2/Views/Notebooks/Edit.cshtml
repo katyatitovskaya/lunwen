@@ -1,0 +1,60 @@
+﻿@using Try2.Models.Enums
+@model Try2.Models.DTOs.NotebookDetailsDto
+
+
+<a asp-action="Details" asp-route-id="@Model.Id">
+    ← Назад к просмотру
+</a>
+
+<h2>Редактирование тетради</h2>
+
+<h3>Добавить участника</h3>
+<form asp-action="AddUser" method="post">
+    <input type="hidden" name="notebookId" value="@Model.Id" />
+
+    <input name="username" placeholder="Username" />
+
+    <button type="submit">Добавить</button>
+</form>
+
+<h3>Участники</h3>
+
+@foreach (var u in Model.Users)
+{
+    <div>
+        @u.Nickname (@u.Username) — @u.Role
+        <form asp-action="RemoveUser" method="post" style="display:inline">
+            <input type="hidden" name="notebookId" value="@Model.Id" />
+            <input type="hidden" name="userId" value="@u.UserId" />
+            @if(u.Role == StudyGroupRole.Participant)
+            {
+                <button type="submit">❌</button>
+            }
+            
+        </form>
+    </div>
+}
+
+<hr />
+
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+
+    <label>Название</label>
+    <input asp-for="Name" />
+
+    <label>Описание</label>
+    <input asp-for="Description" />
+
+    <label>Текст</label>
+    <textarea asp-for="Text" rows="10"></textarea>
+
+    <button type="submit">Сохранить</button>
+    <a asp-action="Details" asp-route-id="@Model.Id">Отмена</a>
+</form>
+
+<hr />
+
+
+

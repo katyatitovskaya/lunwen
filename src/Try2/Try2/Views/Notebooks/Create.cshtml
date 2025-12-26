@@ -1,0 +1,27 @@
+﻿@{
+    Layout = null;
+}
+
+
+<h2>Создание тетради</h2>
+
+<a asp-action="Index">← К моим тетрадям</a>
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <label>Название</label><br />
+    <input name="name" style="width:100%" />
+    <br /><br />
+
+    <label>Описание</label><br />
+    <input name="description" style="width:100%" />
+    <br /><br />
+
+    <label>Текст</label><br />
+    <textarea name="text" rows="10" style="width:100%"></textarea>
+    <br /><br />
+
+    <button type="submit">Создать</button>
+    <a asp-action="Index">Отмена</a>
+</form>

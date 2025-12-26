@@ -1,4 +1,47 @@
-﻿@model Try2.ViewModels.UserProfileViewModel
+﻿@model Try2.Models.DTOs.UserProfileDto
+
+<style>
+    .post-link {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .post-card {
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 12px;
+        margin-bottom: 12px;
+        background: white;
+        cursor: pointer;
+        transition: background 0.2s, box-shadow 0.2s;
+    }
+
+        .post-card:hover {
+            background: #f9f9f9;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+    .post-header {
+        font-size: 14px;
+        margin-bottom: 6px;
+    }
+
+    .username {
+        color: gray;
+        margin-left: 6px;
+    }
+
+    .post-text {
+        font-size: 16px;
+        margin: 8px 0;
+    }
+
+    .post-footer {
+        font-size: 13px;
+        color: gray;
+    }
+
+</style>
 
 <div class="profile-container">
     <div class="profile-header">
@@ -19,7 +62,7 @@
             {
                 <form method="post"
                       asp-action="@(Model.IsFollowedByCurrentUser ? "Unfollow" : "Follow")"
-                      asp-route-userId="@Model.UserId">
+                      asp-route-userId="@Model.Id">
                     <button type="submit">
                         @(Model.IsFollowedByCurrentUser ? "Отписаться" : "Подписаться")
                     </button>
@@ -27,7 +70,7 @@
             }
             else
             {
-                <a asp-controller="Post" asp-action="Create">Написать пост</a>
+                <a asp-controller="Posts" asp-action="Create">Написать пост</a>
             }
         </div>
     </div>
@@ -37,11 +80,28 @@
     <div class="posts">
         @foreach (var post in Model.Posts)
         {
-            <div class="post">
-                <p>@post.Text</p>
-                <small>@post.PublicationDate</small>
-                <div>❤️ @post.LikesCount</div>
-            </div>
+            <a asp-controller="Posts"
+               asp-action="Details"
+               asp-route-id="@post.Id"
+               class="post-link">
+
+                <div class="post-card">
+                    <div class="post-header">
+                        <strong>@post.AuthorNickname</strong>
+                        <span class="username">@post.AuthorUsername</span>
+                    </div>
+
+                    <div class="post-text">
+                        @post.Text
+                    </div>
+
+                    <div class="post-footer">
+                        ❤️ @post.LikesCount
+                        <span class="date">@post.PublicationDate.ToShortDateString()</span>
+                    </div>
+                </div>
+
+            </a>
         }
     </div>
 </div>

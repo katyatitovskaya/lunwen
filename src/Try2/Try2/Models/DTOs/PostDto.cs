@@ -19,6 +19,10 @@
         public int LikesCount { get; set; }
 
         public bool IsLikedByCurrentUser { get; set; }
+
+        public ICollection<CommentDto> Comments { get; set; }
+
+        public ICollection<PostLike> Likes {  get; set; }
     }
 
 }

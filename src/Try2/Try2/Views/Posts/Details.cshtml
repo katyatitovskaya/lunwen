@@ -1,0 +1,134 @@
+﻿@using Try2.Models.DTOs
+@model PostDto
+
+@{
+    int? currentUserId = ViewBag.CurrentUserId as int?;
+    bool isAuthor = currentUserId == Model.AuthorId;
+}
+
+<h2>Пост</h2>
+
+<div style="border:1px solid #ccc; border-radius:8px; padding:15px; margin-bottom:20px;">
+    <div>
+        <strong>@Model.AuthorNickname</strong>
+        <a asp-controller="User"
+        asp-action="Profile"
+            asp-route-id="@Model.AuthorId">
+            <span style="color:gray">@Model.AuthorUsername</span>
+        </a>
+        
+    </div>
+
+    <p style="margin-top:10px;">
+        @Model.Text
+    </p>
+
+    <small style="color:gray">
+        @Model.PublicationDate.ToLocalTime()
+    </small>
+
+    @if (User.Identity.IsAuthenticated)
+    {
+        if (!Model.IsLikedByCurrentUser)
+        {
+            <form asp-controller="Posts"
+                  asp-action="Like"
+                  asp-route-postId="@Model.Id"
+                  method="post">
+                <button type="submit">♡ @Model.LikesCount</button>
+            </form>
+        }
+        else
+        {
+            <form asp-controller="Posts"
+                  asp-action="Unlike"
+                  asp-route-postId="@Model.Id"
+                  method="post">
+                <button type="submit">❤️ @Model.LikesCount</button>
+            </form>
+        }
+    }
+    else
+    {
+        <span>❤️ @Model.LikesCount</span>
+    }
+
+    @if (isAuthor)
+    {
+        <a asp-controller="Posts"
+           asp-action="Edit"
+           asp-route-id="@Model.Id"
+           class="btn btn-secondary">
+            Редактировать
+        </a>
+
+        <form asp-controller="Posts"
+              asp-action="Delete"
+              asp-route-id="@Model.Id"
+              method="post"
+              onsubmit="return confirm('Вы уверены, что хотите удалить пост?');"
+              style="display:inline">
+            <button type="submit" class="btn btn-danger">
+                Удалить
+            </button>
+        </form>
+    }
+
+</div>
+
+<hr />
+
+<h3>Комментарии</h3>
+
+@if (User.Identity.IsAuthenticated)
+{
+    <form asp-action="AddComment" method="post">
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" name="postId" value="@Model.Id" />
+
+        <textarea name="text"
+              rows="3"
+              style="width:100%;"
+              placeholder="Написать комментарий..."></textarea>
+
+        <button type="submit">Отправить</button>
+    </form>
+}
+else
+{
+    <p>
+        <a asp-controller="Account" asp-action="Login">Войдите</a>,
+        чтобы написать комментарий
+    </p>
+}
+
+<br />
+
+@{
+    ViewBag.PostId = Model.Id;
+}
+
+
+@foreach (var comment in Model.Comments)
+{
+    @await Html.PartialAsync("_Comment", comment)
+}
+
+<script>
+    function toggleReply(commentId) {
+        // закрываем ВСЕ формы
+        document.querySelectorAll('.reply-form').forEach(f => {
+            f.style.display = 'none';
+        });
+
+        // открываем только нужную
+        const form = document.getElementById('reply-' + commentId);
+        if (form) {
+            form.style.display = 'block';
+        }
+    }
+</script>
+
+
+

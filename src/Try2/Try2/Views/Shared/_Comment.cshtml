@@ -1,0 +1,78 @@
+﻿@using Try2.Models.DTOs
+@model CommentDto
+
+@{
+    int? currentUserId = ViewBag.CurrentUserId as int?;
+    bool isLiked = currentUserId != null &&
+                   Model.Likes.Any(l => l.UserId == currentUserId);
+}
+
+<div class="comment-card"
+     onclick="toggleReply(@Model.Id)"
+     style="border:1px solid #ddd; padding:10px; margin-top:10px">
+
+    <strong>@Model.AuthorNickname</strong>
+    <span style="color:gray">@Model.AuthorUsername</span>
+
+    <p>@Model.Text</p>
+
+    <small>@Model.PublicationTime.ToLocalTime()</small>
+        <!-- Лайк -->
+        @if (!isLiked)
+        {
+            <form asp-controller="Comments"
+                  asp-action="Like"
+                  method="post"
+                  onclick="event.stopPropagation()">
+                <input type="hidden" name="commentId" value="@Model.Id" />
+                <input type="hidden" name="postId" value="@ViewBag.PostId" />
+                <button type="submit">
+                    ♡  @Model.Likes.Count
+                </button>
+            </form>
+        }
+        else
+        {
+            <form asp-controller="Comments"
+                  asp-action="Unlike"
+                  method="post"
+                  onclick="event.stopPropagation()">
+                <input type="hidden" name="commentId" value="@Model.Id" />
+                <input type="hidden" name="postId" value="@ViewBag.PostId" />
+                <button type="submit">
+                    ❤️ @Model.Likes.Count
+                </button>
+            </form>
+        }
+</div>
+
+    <!-- Форма ответа -->
+    <form asp-controller="Comments"
+          asp-action="Reply"
+          method="post"
+          id="reply-@Model.Id"
+          class="reply-form"
+          onclick="event.stopPropagation()"
+          style="display:none; margin-top:5px">
+
+        <input type="hidden" name="postId" value="@ViewBag.PostId" />
+        <input type="hidden" name="parentCommentId" value="@Model.Id" />
+
+        <textarea name="text" rows="2" style="width:100%"></textarea>
+        <button type="submit">Ответить</button>
+    </form>
+
+    <!-- Рекурсия -->
+    @if (Model.Replies?.Any() == true)
+    {
+        <div style="margin-left:30px">
+            @foreach (var reply in Model.Replies)
+            {
+                @await Html.PartialAsync("_Comment", reply)
+            }
+        </div>
+    }
+</div>
+
+
+

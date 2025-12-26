@@ -1,0 +1,47 @@
+﻿@using Try2.Models.DTOs
+@model PostDto
+
+@{
+    int? currentUserId = ViewBag.CurrentUserId as int?;
+    bool isLiked = currentUserId != null &&
+                   Model.Likes.Any(l => l.UserId == currentUserId);
+}
+
+<div style="border:1px solid #ccc; padding:10px; margin-bottom:10px;">
+    <div>
+        <strong>@Model.AuthorNickname</strong>
+        <span style="color:gray">@Model.AuthorUsername</span>
+    </div>
+
+    <p>@Model.Text</p>
+
+    <small>@Model.PublicationDate.ToLocalTime()</small>
+
+    <!-- Лайк -->
+    @if (!isLiked)
+    {
+        <form asp-controller="Posts"
+              asp-action="Like"
+              method="post"
+              onclick="event.stopPropagation()">
+            <input type="hidden" name="commentId" value="@Model.Id" />
+            <input type="hidden" name="postId" value="@ViewBag.PostId" />
+            <button type="submit">
+                ♡  @Model.Likes.Count
+            </button>
+        </form>
+    }
+    else
+    {
+        <form asp-controller="Posts"
+              asp-action="Unlike"
+              method="post"
+              onclick="event.stopPropagation()">
+            <input type="hidden" name="commentId" value="@Model.Id" />
+            <input type="hidden" name="postId" value="@ViewBag.PostId" />
+            <button type="submit">
+                ❤️ @Model.Likes.Count
+            </button>
+        </form>
+    }
+</div>

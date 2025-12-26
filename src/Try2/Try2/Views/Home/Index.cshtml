@@ -10,11 +10,76 @@
 
 <hr />
 
+<style>
+    .post-link {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .post-card {
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 12px;
+        margin-bottom: 12px;
+        background: white;
+        cursor: pointer;
+        transition: background 0.2s, box-shadow 0.2s;
+    }
+
+        .post-card:hover {
+            background: #f9f9f9;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+    .post-header {
+        font-size: 14px;
+        margin-bottom: 6px;
+    }
+
+    .username {
+        color: gray;
+        margin-left: 6px;
+    }
+
+    .post-text {
+        font-size: 16px;
+        margin: 8px 0;
+    }
+
+    .post-footer {
+        font-size: 13px;
+        color: gray;
+    }
+
+</style>
+
 <div id="all">
     @foreach (var post in Model.AllPosts)
     {
-        <partial name="_PostCard" model="post" />
+        <a asp-controller="Posts"
+           asp-action="Details"
+           asp-route-id="@post.Id"
+           class="post-link">
+
+            <div class="post-card">
+                <div class="post-header">
+                    <strong>@post.AuthorNickname</strong>
+                    <span class="username">@post.AuthorUsername</span>
+                </div>
+
+                <div class="post-text">
+                    @post.Text
+                </div>
+
+                <div class="post-footer">
+                    ❤️ @post.LikesCount
+                    <span class="date">@post.PublicationDate.ToShortDateString()</span>
+                </div>
+            </div>
+
+        </a>
     }
+
 </div>
 
 <div id="subs" style="display:none">
@@ -31,10 +96,32 @@
     }
     else
     {
-        foreach (var post in Model.SubscriptionPosts)
+        @foreach (var post in Model.SubscriptionPosts)
         {
-            <partial name="_PostCard" model="post" />
+            <a asp-controller="Posts"
+               asp-action="Details"
+               asp-route-id="@post.Id"
+               class="post-link">
+
+                <div class="post-card">
+                    <div class="post-header">
+                        <strong>@post.AuthorNickname</strong>
+                        <span class="username">@post.AuthorUsername</span>
+                    </div>
+
+                    <div class="post-text">
+                        @post.Text
+                    </div>
+
+                    <div class="post-footer">
+                        ❤️ @post.LikesCount
+                        <span class="date">@post.PublicationDate.ToShortDateString()</span>
+                    </div>
+                </div>
+
+            </a>
         }
+
     }
 </div>
 

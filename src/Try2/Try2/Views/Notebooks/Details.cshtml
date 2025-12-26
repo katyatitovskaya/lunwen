@@ -1,0 +1,55 @@
+﻿@model Try2.Models.DTOs.NotebookDetailsDto
+
+<a asp-controller="Notebooks"
+   asp-action="Index"
+   style="text-decoration:none; font-weight:bold;">
+    ← К моим тетрадям
+</a>
+
+
+<h2>@Model.Name</h2>
+
+<small>
+    Создана: @Model.CreationDate.ToLocalTime()
+</small>
+
+<h3>Участники</h3>
+
+@foreach (var user in Model.Users)
+{
+    <div style="border-bottom:1px solid #eee; padding:5px">
+        <strong>@user.Nickname</strong>
+        <span style="color:gray">@user.Username</span>
+        — @user.Role
+
+        
+    </div>
+}
+
+<div>@Model.Description</div>
+<hr />
+<div>@Model.Text</div>
+
+<hr />
+<br />
+<a asp-controller="Notebooks"
+    asp-action="Edit"
+    asp-route-id="@Model.Id">
+    ✏️ Редактировать
+</a>
+
+
+
+<form asp-controller="Notebooks"
+      asp-action="DeleteNotebook"
+      asp-route-notebookId="@Model.Id"
+      method="post"
+      onsubmit="return confirm('Удалить тетрадь?')">
+
+    <button style="color:red">
+        Удалить тетрадь
+    </button>
+</form>
+
+
+

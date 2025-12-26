@@ -1,16 +1,15 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using Try2.Data;
 using Try2.Extentions;
 using Try2.Models;
 
 namespace Try2.Controllers
 {
-    [ApiController]
-    [Route("api/comments")]
     [Authorize]
-    public class CommentsController : ControllerBase
+    public class CommentsController : Controller
     {
         private readonly ApplicationDbContext _context;
 
@@ -19,69 +18,72 @@ namespace Try2.Controllers
             _context = context;
         }
 
-        // ➕ добавить комментарий
         [HttpPost]
-        public async Task<IActionResult> Create(
-            int postId,
-            string text,
-            int? parentCommentId = null)
+        public async Task<IActionResult> Like(int commentId, int postId)
         {
-            var comment = new Comment
+            var userId = int.Parse(
+                User.FindFirstValue(ClaimTypes.NameIdentifier)
+            );
+
+            var exists = await _context.CommentLikes.AnyAsync(l =>
+                l.UserId == userId && l.CommentId == commentId);
+
+            if (!exists)
             {
-                PostId = postId,
-                Text = text,
-                AuthorId = this.GetUserId(),
-                ParentCommentId = parentCommentId,
-                PublicationTime = DateTime.UtcNow
-            };
-
-            _context.Comments.Add(comment);
-            await _context.SaveChangesAsync();
-
-            return Ok(comment.Id);
-        }
-
-        // 📥 получить комментарии поста
-        [HttpGet("post/{postId}")]
-        [AllowAnonymous]
-        public async Task<IActionResult> GetByPost(int postId)
-        {
-            var comments = await _context.Comments
-                .Where(c => c.PostId == postId)
-                .OrderBy(c => c.PublicationTime)
-                .Select(c => new
+                _context.CommentLikes.Add(new CommentLike
                 {
-                    c.Id,
-                    c.Text,
-                    c.AuthorId,
-                    c.ParentCommentId,
-                    c.PublicationTime
-                })
-                .ToListAsync();
+                    UserId = userId,
+                    CommentId = commentId
+                });
 
-            return Ok(comments);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("Details", "Posts", new { id = postId });
         }
 
-        // ❌ удалить комментарий
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpPost]
+        public async Task<IActionResult> Unlike(int commentId, int postId)
         {
             var userId = this.GetUserId();
 
-            var comment = await _context.Comments
-                .FirstOrDefaultAsync(c => c.Id == id);
+            var like = await _context.CommentLikes
+                .FirstOrDefaultAsync(l =>
+                    l.CommentId == commentId && l.UserId == userId);
 
-            if (comment == null)
-                return NotFound();
+            if (like == null) return NotFound();
 
-            if (comment.AuthorId != userId)
-                return Forbid();
-
-            _context.Comments.Remove(comment);
+            _context.CommentLikes.Remove(like);
             await _context.SaveChangesAsync();
 
-            return Ok();
+            return RedirectToAction("Details", "Posts", new { id = postId });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Reply(
+                    int postId,
+                    int parentCommentId,
+                    string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return RedirectToAction("Details", "Posts", new { id = postId });
+
+            var userId = int.Parse(
+                User.FindFirstValue(ClaimTypes.NameIdentifier)
+            );
+
+            _context.Comments.Add(new Comment
+            {
+                PostId = postId,
+                ParentCommentId = parentCommentId,
+                AuthorId = userId,
+                Text = text,
+                PublicationTime = DateTime.UtcNow
+            });
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Details", "Posts", new { id = postId });
         }
     }
-
 }

@@ -1,0 +1,16 @@
+﻿@model Try2.Models.DTOs.PostDto
+
+<h2>Новый пост</h2>
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <textarea asp-for="Text"
+              rows="5"
+              style="width:100%"
+              placeholder="Что у вас нового?"></textarea>
+
+    <span asp-validation-for="Text"></span>
+
+    <button type="submit">Опубликовать</button>
+</form>

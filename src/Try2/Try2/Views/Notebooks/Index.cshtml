@@ -1,0 +1,23 @@
+﻿@model IEnumerable<dynamic>
+
+<h2>Мои тетради</h2>
+
+<a asp-action="Create">
+    ➕ Создать тетрадь
+</a>
+
+<hr />
+
+@foreach (var n in Model)
+{
+    <div style="border:1px solid #ccc; padding:10px; margin-bottom:10px">
+        <h3>@n.Name</h3>
+
+        <a asp-controller="Notebooks"
+            asp-action="Details"
+           asp-route-id="@n.Id">
+            Открыть
+        </a>
+    </div>
+}
+

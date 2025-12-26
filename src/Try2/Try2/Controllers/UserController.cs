@@ -39,12 +39,12 @@ namespace Try2.Controllers
                     s.TargetUserId == user.Id);
             }
 
-            var vm = new UserProfileViewModel
+            var vm = new UserProfileDto
             {
-                UserId = user.Id,
+                Id = user.Id,
                 Username = user.Username,
                 Nickname = user.Nickname,
-                Role = user.Role.ToString(),
+                Role = user.Role,
                 Bio = user.Bio,
 
                 FollowersCount = await _context.Subscriptions
