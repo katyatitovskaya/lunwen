@@ -28,10 +28,10 @@
 
             @if (!Model.IsCurrentUser)
             {
-                <form method="post"
+                <form method="post" class="follow-form"
                       asp-action="@(Model.IsFollowedByCurrentUser ? "Unfollow" : "Follow")"
                       asp-route-userId="@Model.Id">
-                    <button type="submit">
+                    <button class="follow-btn" type="submit">
                         @(Model.IsFollowedByCurrentUser ? "Отписаться" : "Подписаться")
                     </button>
                 </form>

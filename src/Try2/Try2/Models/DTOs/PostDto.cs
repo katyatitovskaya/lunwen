@@ -1,4 +1,6 @@
-﻿namespace Try2.Models.DTOs
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Try2.Models.DTOs
 {
     public class PostDto
     {
@@ -23,6 +25,9 @@
         public ICollection<CommentDto> Comments { get; set; }
 
         public ICollection<PostLike> Likes {  get; set; }
+
+        
+
     }
 
 }
