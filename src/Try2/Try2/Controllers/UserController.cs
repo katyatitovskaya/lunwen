@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Try2.Data;
-using Try2.ViewModels;
 using Try2.Models.DTOs;
 using System.Security.Claims;
 

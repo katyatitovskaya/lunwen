@@ -1,8 +1,6 @@
-﻿using Try2.Models.DTOs;
-
-namespace Try2.ViewModels
+﻿namespace Try2.Models.DTOs
 {
-    public class FeedViewModel
+    public class FeedDto
     {
         /// <summary>
         /// Лента всех постов

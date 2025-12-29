@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using Try2.Data;
 using Try2.Models.DTOs;
-using Try2.ViewModels;
 
 public class HomeController : Controller
 {
@@ -69,7 +68,7 @@ public class HomeController : Controller
                 .ToListAsync();
         }
 
-        return View(new FeedViewModel
+        return View(new FeedDto
         {
             AllPosts = allPosts,
             SubscriptionPosts = subscriptionPosts
