@@ -22,7 +22,7 @@ namespace Try2.Controllers
             _context = context;
         }
 
-        // ---------- REGISTER ----------
+        // регистрация
 
         [HttpGet]
         public IActionResult Register() => View();
@@ -53,7 +53,7 @@ namespace Try2.Controllers
             return RedirectToAction("Login");
         }
 
-        // ---------- LOGIN ----------
+        // вход в аккаунт
 
         [HttpGet]
         public IActionResult Login() => View();
@@ -90,7 +90,7 @@ namespace Try2.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        // ---------- LOGOUT ----------
+        // выход из аккаунта
 
         [Authorize]
         public async Task<IActionResult> Logout()

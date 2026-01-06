@@ -193,7 +193,7 @@ namespace Try2.Controllers
             return RedirectToAction("Details", new { id = post.Id });
         }
 
-        // 👍 лайк поста
+        // лайк поста
         [HttpPost]
         public async Task<IActionResult> Like(int postId)
         {
@@ -213,7 +213,7 @@ namespace Try2.Controllers
             return RedirectToAction("Details", new { id = postId });
         }
 
-        // 👎 убрать лайк
+        // убрать лайк
         [HttpPost]
         public async Task<IActionResult> Unlike(int postId)
         {

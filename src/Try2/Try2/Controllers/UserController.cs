@@ -174,7 +174,7 @@ namespace Try2.Controllers
             user.Nickname = dto.Nickname;
             user.Bio = dto.Bio;
 
-            // 📸 ЗАГРУЗКА ФОТО
+            // ЗАГРУЗКА ФОТО
             if (dto.ProfilePhoto != null && dto.ProfilePhoto.Length > 0)
             {
                 var uploadsFolder = Path.Combine(

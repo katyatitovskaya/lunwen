@@ -19,7 +19,7 @@ namespace Try2.Controllers
             _context = context;
         }
 
-        // 📒 список тетрадей
+        // список тетрадей
         public async Task<IActionResult> Index()
         {
             var userId = this.GetUserId();
@@ -37,7 +37,7 @@ namespace Try2.Controllers
             return View(notebooks);
         }
 
-        // ➕ создать тетрадь
+        // создать тетрадь
         [HttpGet]
         public IActionResult Create()
         {
@@ -80,7 +80,7 @@ namespace Try2.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // 📖 просмотр тетради
+        // просмотр тетради
         public async Task<IActionResult> Details(int id)
         {
             var userId = this.GetUserId();
@@ -119,7 +119,7 @@ namespace Try2.Controllers
             return View(model);
         }
 
-        // ✏️ редактирование
+        // редактирование
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -179,7 +179,7 @@ namespace Try2.Controllers
         }
 
 
-        // 🗑 удалить тетрадь
+        // удалить тетрадь
         [HttpPost]
         public async Task<IActionResult> DeleteNotebook(int notebookId)
         {
