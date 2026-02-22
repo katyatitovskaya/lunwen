@@ -10,7 +10,19 @@
 <div class="comment-card"
      onclick="toggleReply(@Model.Id)"
      style="border:1px solid #ddd; padding:10px; margin-top:10px">
-
+    @if (!string.IsNullOrEmpty(Model.AuthorProfilePhoto))
+    {
+        <img src="@Model.AuthorProfilePhoto"
+             alt="Profile photo"
+             style="width:40px; height:40px; border-radius:50%; object-fit:cover;" />
+    }
+    else
+    {
+        <!-- Заглушка, если фото нет -->
+        <div style="width:40px; height:40px; border-radius:50%; background-color:#e0e0e0; display:flex; align-items:center; justify-content:center; font-size:20px; color:#666;">
+            @(Model.AuthorNickname?.Substring(0, 1) ?? "?")
+        </div>
+    }
     <strong>@Model.AuthorNickname</strong>
     <span style="color:gray">@Model.AuthorUsername</span>
 

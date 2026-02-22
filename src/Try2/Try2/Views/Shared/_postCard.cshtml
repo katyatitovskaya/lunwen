@@ -1,4 +1,4 @@
-﻿@using Try2.Models.DTOs
+﻿@* @using Try2.Models.DTOs
 @model PostDto
 
 @{
@@ -41,6 +41,80 @@
             <input type="hidden" name="postId" value="@ViewBag.PostId" />
             <button type="submit">
                 ❤️ @Model.Likes.Count
+            </button>
+        </form>
+    }
+</div> *@
+
+@using Try2.Models.DTOs
+@model PostDto
+
+@{
+    int? currentUserId = ViewBag.CurrentUserId as int?;
+    bool isLiked = currentUserId != null &&
+                   Model.Likes != null &&
+                   Model.Likes.Any(l => l.UserId == currentUserId);
+}
+
+<div style="border:1px solid #ccc; padding:10px; margin-bottom:10px;">
+    <!-- Группировка фото, никнейма и юзернейма для перехода в профиль -->
+    <a href="@Url.Action("Profile", "User", new { id = Model.AuthorId })"
+       style="text-decoration:none; color:inherit; display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+
+        <!-- Фото пользователя -->
+        @if (!string.IsNullOrEmpty(Model.AuthorProfilePhoto))
+        {
+            <img src="@Model.AuthorProfilePhoto"
+                 alt="Profile photo"
+                 style="width:40px; height:40px; border-radius:50%; object-fit:cover;" />
+        }
+        else
+        {
+            <!-- Заглушка, если фото нет -->
+            <div style="width:40px; height:40px; border-radius:50%; background-color:#e0e0e0; display:flex; align-items:center; justify-content:center; font-size:20px; color:#666;">
+                @(Model.AuthorNickname?.Substring(0, 1) ?? "?")
+            </div>
+        }
+
+        <!-- Информация об авторе -->
+        <div>
+            <strong>@Model.AuthorNickname</strong>
+            <span style="color:gray">@@@Model.AuthorUsername</span>
+        </div>
+    </a>
+
+    <!-- Ссылка на детальную страницу поста -->
+    <a asp-controller="Posts"
+       asp-action="Details"
+       asp-route-id="@Model.Id"
+       style="text-decoration:none; color:inherit;">
+        <p>@Model.Text</p>
+
+        <small>@Model.PublicationDate.ToLocalTime()</small>
+    </a>
+
+    <!-- Лайк -->
+    @if (!isLiked)
+    {
+        <form asp-controller="Posts"
+              asp-action="Like"
+              method="post"
+              onclick="event.stopPropagation()">
+            <input type="hidden" name="postId" value="@Model.Id" />
+            <button type="submit">
+                ♡  @(Model.Likes?.Count ?? 0)
+            </button>
+        </form>
+    }
+    else
+    {
+        <form asp-controller="Posts"
+              asp-action="Unlike"
+              method="post"
+              onclick="event.stopPropagation()">
+            <input type="hidden" name="postId" value="@Model.Id" />
+            <button type="submit">
+                ❤️ @(Model.Likes?.Count ?? 0)
             </button>
         </form>
     }

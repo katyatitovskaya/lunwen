@@ -136,6 +136,7 @@ namespace Try2.Controllers
                     Text = c.Text,
                     AuthorUsername = c.User.Username,
                     AuthorNickname = c.User.Nickname,
+                    AuthorProfilePhoto = c.User.ProfilePhoto,
                     PublicationTime = c.PublicationTime,
                     Likes = c.Likes,
                     Replies = new List<CommentDto>()

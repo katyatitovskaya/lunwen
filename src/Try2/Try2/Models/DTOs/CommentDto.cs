@@ -7,6 +7,7 @@
         public string Text { get; set; }
         public string AuthorUsername { get; set; }
         public string AuthorNickname { get; set; }
+        public string? AuthorProfilePhoto { get; set; }
 
         public DateTime PublicationTime { get; set; }
 
