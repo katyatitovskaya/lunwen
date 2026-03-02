@@ -48,7 +48,7 @@ namespace Try2.Controllers
             };
 
             _context.Users.Add(user);
-            await _context.SaveChangesAsync(); // ← РЕАЛЬНО СОХРАНЯЕТ
+            await _context.SaveChangesAsync();
 
             return RedirectToAction("Login");
         }

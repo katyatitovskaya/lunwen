@@ -121,6 +121,35 @@ namespace Try2.Controllers
             return RedirectToAction("Details", new { id = postId });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> DeleteComment(int id)
+        {
+            var userId = this.GetUserId();
+            var currentPost = 0;
+            foreach(var comm in _context.Comments)
+            {
+                if(comm.Id == id)
+                {
+                    currentPost = comm.PostId;
+                }
+            }
+            var comment = await _context.Comments.FindAsync(id);
+            if (comment == null) return NotFound();
+            if (comment.AuthorId != userId) return Forbid();
+
+            if (comment.Replies != null)
+            {
+                foreach (var reply in comment.Replies)
+                {
+                    _context.Comments.Remove(reply);
+                }
+            }
+            _context.Comments.Remove(comment);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Details", new {Id = currentPost});
+        }
+
         private List<CommentDto> BuildCommentTree(List<Comment> comments)
         {
             var dict = comments.ToDictionary(c => c.Id);
@@ -245,6 +274,43 @@ namespace Try2.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction("Index", "Home");
+        }
+
+        public async Task<IActionResult> Favourites()
+        {
+            List<PostDto>? likedPosts = null;
+
+            if (User.Identity.IsAuthenticated)
+            {
+                int currentUserId = int.Parse(
+                    User.FindFirstValue(ClaimTypes.NameIdentifier)
+                );
+                likedPosts = await _context.Posts
+                .Include(p => p.Author)
+                .Where(p =>
+                    _context.PostLikes.Any(u =>
+                        u.UserId == currentUserId
+                        && u.PostId == p.Id))
+                .OrderByDescending(p => p.PublicationDate)
+                .Select(p => new PostDto
+                {
+                    Id = p.Id,
+                    AuthorId = p.AuthorId,
+                    AuthorUsername = p.Author.Username,
+                    AuthorNickname = p.Author.Nickname,
+                    AuthorProfilePhoto = p.Author.ProfilePhoto,
+                    Text = p.Text,
+                    PublicationDate = p.PublicationDate,
+                    LikesCount = _context.PostLikes.Count(l =>
+                         l.PostId == p.Id),
+                    IsLikedByCurrentUser = true
+                })
+                .ToListAsync();
+            }
+            return View(new FeedDto
+            {
+                LikedPosts = likedPosts
+            });
         }
     }
 }

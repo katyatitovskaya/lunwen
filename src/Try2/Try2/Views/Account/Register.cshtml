@@ -18,9 +18,16 @@
                         <div class="col-md-6 mb-3">
                             <label asp-for="Username" class="form-label">Имя пользователя *</label>
                             <input asp-for="Username" class="form-control"
-                                   id="usernameInput" minlength="3" required />
+                                   id="usernameInput" minlength="3" required
+                                   pattern="[A-Za-z_]+"
+                                   title="Только буквы английского алфавита и символ подчеркивания" />
                             <span asp-validation-for="Username" class="text-danger"></span>
-                            <div class="form-text">Минимум 3 символа, только буквы и цифры</div>
+                            <div class="form-text" id="usernameHelp">
+                                Минимум 3 символа. Только буквы английского алфавита (A-Z, a-z) и символ подчеркивания (_)
+                            </div>
+                            <div class="invalid-feedback" id="usernameError" style="display:none;">
+                                Имя пользователя может содержать только буквы английского алфавита и символ подчеркивания
+                            </div>
                         </div>
 
                         <div class="col-md-6 mb-3">
@@ -66,6 +73,8 @@
 </div>
 
 @section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('registerForm');
@@ -73,12 +82,88 @@
             const usernameInput = document.getElementById('usernameInput');
             const passwordInput = document.getElementById('passwordInput');
             const roleSelect = document.querySelector('select[name="Role"]');
+            const usernameError = document.getElementById('usernameError');
+            const usernameHelp = document.getElementById('usernameHelp');
 
-            // Проверка доступности имени пользователя (опционально)
-            usernameInput.addEventListener('blur', function() {
-                const username = this.value.trim();
-                if (username.length < 3) return;
+            // Функция для проверки username (только английские буквы и _)
+            function isValidUsername(username) {
+                const usernameRegex = /^[A-Za-z_]+$/;
+                return usernameRegex.test(username);
+            }
 
+            // Валидация username в реальном времени
+            usernameInput.addEventListener('input', function() {
+                const username = this.value;
+
+                // Проверка на недопустимые символы
+                if (username.length > 0 && !isValidUsername(username)) {
+                    this.classList.add('is-invalid');
+                    usernameError.style.display = 'block';
+                    usernameHelp.style.color = '#dc3545';
+
+                    // Удаляем недопустимые символы
+                    const validUsername = username.replace(/[^A-Za-z_]/g, '');
+                    if (validUsername !== username) {
+                        this.value = validUsername;
+                    }
+                } else {
+                    if (username.length >= 3) {
+                        this.classList.remove('is-invalid');
+                        usernameError.style.display = 'none';
+                        usernameHelp.style.color = '';
+                    } else if (username.length > 0) {
+                        this.classList.add('is-invalid');
+                        usernameError.style.display = 'none';
+                        usernameHelp.style.color = '#dc3545';
+                    } else {
+                        this.classList.remove('is-invalid');
+                        usernameError.style.display = 'none';
+                        usernameHelp.style.color = '';
+                    }
+                }
+            });
+
+            // Блокировка ввода недопустимых символов
+            usernameInput.addEventListener('keydown', function(e) {
+                const key = e.key;
+                const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab', 'Home', 'End'];
+
+                if (allowedKeys.includes(key)) {
+                    return; // Разрешаем служебные клавиши
+                }
+
+                // Проверяем, является ли вводимый символ допустимым
+                if (!/^[A-Za-z_]$/.test(key) && !e.ctrlKey && !e.metaKey) {
+                    e.preventDefault();
+
+                    // Показываем временное сообщение об ошибке
+                    usernameInput.classList.add('is-invalid');
+                    usernameError.style.display = 'block';
+
+                    setTimeout(() => {
+                        usernameError.style.display = 'none';
+                    }, 2000);
+                }
+            });
+
+            // Предотвращаем вставку недопустимых символов
+            usernameInput.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const pastedText = e.clipboardData.getData('text');
+                const validText = pastedText.replace(/[^A-Za-z_]/g, '');
+
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                const currentValue = this.value;
+                const newValue = currentValue.substring(0, start) + validText + currentValue.substring(end);
+
+                this.value = newValue;
+
+                // Устанавливаем курсор в конец вставленного текста
+                this.setSelectionRange(start + validText.length, start + validText.length);
+
+                // Триггерим событие input для валидации
+                this.dispatchEvent(new Event('input'));
             });
 
             // Показать/скрыть пароль
@@ -116,11 +201,18 @@
             // Валидация формы перед отправкой
             form.addEventListener('submit', function(e) {
                 let isValid = true;
+                const errors = [];
 
                 // Проверка имени пользователя
-                if (usernameInput.value.trim().length < 3) {
+                const username = usernameInput.value.trim();
+                if (username.length < 3) {
                     isValid = false;
                     usernameInput.classList.add('is-invalid');
+                    errors.push('Имя пользователя должно содержать минимум 3 символа');
+                } else if (!isValidUsername(username)) {
+                    isValid = false;
+                    usernameInput.classList.add('is-invalid');
+                    errors.push('Имя пользователя может содержать только буквы английского алфавита и символ подчеркивания');
                 } else {
                     usernameInput.classList.remove('is-invalid');
                 }
@@ -129,6 +221,7 @@
                 if (passwordInput.value.length < 6) {
                     isValid = false;
                     passwordInput.classList.add('is-invalid');
+                    errors.push('Пароль должен содержать минимум 6 символов');
                 } else {
                     passwordInput.classList.remove('is-invalid');
                 }
@@ -137,19 +230,20 @@
                 if (!roleSelect.value) {
                     isValid = false;
                     roleSelect.classList.add('is-invalid');
+                    errors.push('Выберите роль');
                 } else {
                     roleSelect.classList.remove('is-invalid');
                 }
 
                 if (!isValid) {
                     e.preventDefault();
-                    alert('Пожалуйста, заполните все обязательные поля правильно');
+                    alert('Ошибки валидации:\n- ' + errors.join('\n- '));
                 }
             });
 
             // Снятие отметки об ошибке при вводе
             usernameInput.addEventListener('input', function() {
-                if (this.value.trim().length >= 3) {
+                if (this.value.trim().length >= 3 && isValidUsername(this.value)) {
                     this.classList.remove('is-invalid');
                 }
             });

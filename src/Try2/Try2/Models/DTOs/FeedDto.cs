@@ -12,5 +12,7 @@
         /// null = пользователь не авторизован
         /// </summary>
         public List<PostDto>? SubscriptionPosts { get; set; }
+
+        public List<PostDto>? LikedPosts { get; set; }
     }
 }
