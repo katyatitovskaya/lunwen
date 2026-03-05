@@ -84,6 +84,7 @@ namespace Try2.Controllers
         public async Task<IActionResult> Details(int id)
         {
             var userId = this.GetUserId();
+            var currentUser = await _context.Users.FindAsync(userId);
 
             var notebook = await _context.Notebooks
                 .Include(n => n.StudyGroups)
@@ -99,6 +100,17 @@ namespace Try2.Controllers
             if (myRole == null)
                 return Forbid();
 
+            var hasOwner = notebook.StudyGroups.Any(sg => sg.UserRole == StudyGroupRole.Creator);
+            if (!hasOwner)
+            {
+                myRole.UserRole = StudyGroupRole.Creator;
+                _context.StudyGroups.Update(myRole);
+                await _context.SaveChangesAsync();
+
+                // Обновляем myRole для использования в модели
+                myRole = await _context.StudyGroups
+                    .FirstOrDefaultAsync(sg => sg.UserId == userId && sg.NotebookId == notebook.Id);
+            }
             var model = new NotebookDetailsDto
             {
                 Id = notebook.Id,

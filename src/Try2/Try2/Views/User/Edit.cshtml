@@ -42,3 +42,36 @@
     <button type="submit">💾 Сохранить</button>
     <a asp-action="Profile" asp-route-id="@Model.Id">Отмена</a>
 </form>
+
+<br />
+
+<form asp-controller="User"
+      asp-action="Delete"
+      asp-route-id="@Model.Id"
+      method="post"
+      onsubmit="return askForPassword()"
+      style="display:inline">
+
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" name="password" id="deletePassword" />
+
+    <button type="submit" class="btn btn-danger">
+        Удалить аккаунт
+    </button>
+</form>
+
+<script>
+    function askForPassword() {
+        const password = prompt("Введите пароль для подтверждения удаления аккаунта:");
+
+        if (!password || password.trim() === "") {
+            alert("Удаление отменено. Пароль обязателен.");
+            return false;
+        }
+
+        document.getElementById("deletePassword").value = password;
+        return true;
+    }
+</script>
+

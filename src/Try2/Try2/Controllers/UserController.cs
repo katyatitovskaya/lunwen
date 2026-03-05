@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using Try2.Data;
 using Try2.Models.DTOs;
-using System.Security.Claims;
+using Try2.Models.Services;
 
 namespace Try2.Controllers
 {
@@ -199,6 +202,59 @@ namespace Try2.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction("Profile", new { id = user.Id });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id, string password)
+        {
+            int? currentUserId = GetCurrentUserId();
+
+            if (currentUserId == null || currentUserId != id)
+                return Forbid();
+
+            var user = await _context.Users
+                .Include(u => u.Posts)
+                .ThenInclude(p => p.Likes)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (user == null)
+                return NotFound();
+
+            // Проверка пароля
+            if (!PasswordHasher.Verify(password, user.Password))
+            {
+                TempData["Error"] = "Неверный пароль.";
+                return RedirectToAction("Edit");
+            }
+
+            // Удаляем подписки
+            var subs = _context.Subscriptions
+                .Where(s => s.FollowerId == id || s.TargetUserId == id);
+            _context.Subscriptions.RemoveRange(subs);
+
+            // Удаляем лайки пользователя
+            var postlikes = _context.PostLikes.Where(l => l.UserId == id);
+            _context.PostLikes.RemoveRange(postlikes);
+
+            var commentlikes = _context.CommentLikes.Where(l => l.UserId == id);
+            _context.CommentLikes.RemoveRange(commentlikes);
+
+            var studyGroups = _context.StudyGroups.Where(l => l.UserId == id);
+            _context.StudyGroups.RemoveRange(studyGroups);
+
+            // Удаляем посты пользователя
+            _context.Posts.RemoveRange(user.Posts);
+
+            // Удаляем пользователя
+            _context.Users.Remove(user);
+
+            await _context.SaveChangesAsync();
+
+            // Выход из системы
+            await HttpContext.SignOutAsync();
+
+            return RedirectToAction("Index", "Home");
         }
 
 
