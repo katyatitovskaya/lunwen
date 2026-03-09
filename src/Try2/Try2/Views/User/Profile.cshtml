@@ -19,7 +19,7 @@
             <h2>@Model.Nickname</h2>
             <p>@Model.Username</p>
             <p>@Model.Role</p>
-            <p>@Model.Bio</p>
+            <p>@Html.Raw(Try2.Models.Services.TextFormatter.FormatPostText(Model.Bio))</p>
 
             <div class="stats">
                 <span>Подписчики: @Model.FollowersCount</span>
@@ -78,7 +78,7 @@
                         </div>
                     </div>
                     <div class="post-text">
-                        @post.Text
+                        @Html.Raw(Try2.Models.Services.TextFormatter.FormatPostText(post.Text))
                     </div>
 
                     <div class="post-footer">

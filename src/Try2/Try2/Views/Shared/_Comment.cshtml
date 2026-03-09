@@ -125,7 +125,7 @@
                 <span style="color:gray">@Model.AuthorUsername</span>
             </div>
             </a>
-            <p>@Model.Text</p>
+            <p>@Html.Raw(Try2.Models.Services.TextFormatter.FormatPostText(Model.Text))</p>
 
             <small>@Model.PublicationTime.ToLocalTime()</small>
         </div>

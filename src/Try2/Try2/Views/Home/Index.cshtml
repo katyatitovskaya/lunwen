@@ -53,7 +53,7 @@
                        asp-action="Details"
                        asp-route-id="@post.Id"
                        style="text-decoration:none; color:inherit;">
-                        <p>@post.Text</p>
+                        <p>@Html.Raw(Try2.Models.Services.TextFormatter.FormatPostText(post.Text))</p>
                     </a>
                 </div>
 
@@ -123,7 +123,7 @@
                            asp-action="Details"
                            asp-route-id="@post.Id"
                            style="text-decoration:none; color:inherit;">
-                            <p>@post.Text</p>
+                            <p>@Html.Raw(Try2.Models.Services.TextFormatter.FormatPostText(post.Text))</p>
                         </a>
                     </div>
 

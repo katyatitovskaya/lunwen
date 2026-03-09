@@ -5,7 +5,15 @@
 <form asp-action="Create" method="post">
     @Html.AntiForgeryToken()
 
+    <div style="margin-bottom:6px">
+        <button type="button" onclick="formatText('bold')"><b>B</b></button>
+        <button type="button" onclick="formatText('italic')"><i>I</i></button>
+        <button type="button" onclick="formatText('ul')">• List</button>
+        <button type="button" onclick="formatText('ol')">1. List</button>
+    </div>
+
     <textarea asp-for="Text"
+              id="postText"
               rows="5"
               style="width:100%"
               placeholder="Что у вас нового?"></textarea>
@@ -14,3 +22,45 @@
 
     <button type="submit">Опубликовать</button>
 </form>
+
+<script>
+
+    function formatText(type) {
+
+        const textarea = document.getElementById("postText");
+
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+
+        const selectedText = textarea.value.substring(start, end);
+
+        let formatted = selectedText;
+
+        if (type === "bold")
+            formatted = "**" + selectedText + "**";
+
+        if (type === "italic")
+            formatted = "*" + selectedText + "*";
+        if (type === "ul") 
+        {
+            const lines = selectedText.split("\n");
+            formatted = lines
+                .map(line => "- " + line)
+                .join("\n");
+        }
+        if (type === "ol") 
+        {
+            const lines = selectedText.split("\n");
+            formatted = lines
+                .map((line, index) => (index + 1) + ". " + line)
+                .join("\n");
+        }
+
+        textarea.value =
+            textarea.value.substring(0, start) +
+            formatted +
+            textarea.value.substring(end);
+
+        textarea.focus();
+    }
+</script>

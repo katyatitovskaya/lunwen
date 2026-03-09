@@ -20,7 +20,7 @@
     </div>
 
     <p style="margin-top:10px;">
-        @Model.Text
+    @Html.Raw(Try2.Models.Services.TextFormatter.FormatPostText(Model.Text))
     </p>
 
     <small style="color:gray">
