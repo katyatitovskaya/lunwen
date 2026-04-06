@@ -20,6 +20,21 @@ namespace Try2.Models.Services
             // italics 
             text = Regex.Replace(text, @"\*(.*?)\*", "<i>$1</i>");
 
+            // strikethrough (зачеркнутый)
+            text = Regex.Replace(text, @"~~(.*?)~~", "<del>$1</del>");
+
+            // размер шрифта: [large]текст[/large] или [small]текст[/small] или [medium]текст[/medium]
+            text = Regex.Replace(text, @"\[large\](.*?)\[/large\]", "<span style='font-size: 1.5em;'>$1</span>");
+            text = Regex.Replace(text, @"\[medium\](.*?)\[/medium\]", "<span style='font-size: 1.2em;'>$1</span>");
+            text = Regex.Replace(text, @"\[small\](.*?)\[/small\]", "<span style='font-size: 0.9em;'>$1</span>");
+
+            // цвет шрифта: [red]текст[/red], [green]текст[/green], [black]текст[/black], [orange]текст[/orange], [pink]текст[/pink]
+            text = Regex.Replace(text, @"\[red\](.*?)\[/red\]", "<span style='color: #8B0000;'>$1</span>");
+            text = Regex.Replace(text, @"\[green\](.*?)\[/green\]", "<span style='color: #1B5E20;'>$1</span>");
+            text = Regex.Replace(text, @"\[blue\](.*?)\[/blue\]", "<span style='color: #00008B;'>$1</span>");
+            text = Regex.Replace(text, @"\[orange\](.*?)\[/orange\]", "<span style='color: #FF4500;'>$1</span>");
+            text = Regex.Replace(text, @"\[pink\](.*?)\[/pink\]", "<span style='color: #FF1493;'>$1</span>");
+
             // UL список
             text = Regex.Replace(
                 text,

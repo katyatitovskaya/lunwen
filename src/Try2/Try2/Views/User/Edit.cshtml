@@ -32,9 +32,24 @@
         <span asp-validation-for="Username"></span>
     </div>
 
+    <label>Био</label>
+    <div style="margin-bottom:10px; display: flex; flex-wrap: wrap; gap: 5px;">
+        <!-- Основное форматирование -->
+        <div style="margin-right: 15px;">
+            <button type="button" onclick="formatText('bold')" title="Жирный"><b>B</b></button>
+            <button type="button" onclick="formatText('italic')" title="Курсив"><i>I</i></button>
+            <button type="button" onclick="formatText('strike')" title="Зачеркнутый"><del>S</del></button>
+        </div>
+
+        <!-- Списки -->
+        <div>
+            <button type="button" onclick="formatText('ul')" title="Маркированный список">• List</button>
+            <button type="button" onclick="formatText('ol')" title="Нумерованный список">1. List</button>
+        </div>
+    </div>
     <div>
-        <label>Био</label>
-        <textarea asp-for="Bio" rows="4"></textarea>
+        
+        <textarea asp-for="Bio" rows="4" id="bioText"></textarea>
     </div>
 
     <br />
@@ -72,6 +87,70 @@
 
         document.getElementById("deletePassword").value = password;
         return true;
+    }
+
+    function formatText(type) {
+        const textarea = document.getElementById("bioText");
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const selectedText = textarea.value.substring(start, end);
+        let formatted = selectedText;
+
+        switch(type) {
+            case "bold":
+                formatted = "**" + selectedText + "**";
+                break;
+            case "italic":
+                formatted = "*" + selectedText + "*";
+                break;
+            case "strike":
+                formatted = "~~" + selectedText + "~~";
+                break;
+            case "large":
+                formatted = "[large]" + selectedText + "[/large]";
+                break;
+            case "medium":
+                formatted = "[medium]" + selectedText + "[/medium]";
+                break;
+            case "small":
+                formatted = "[small]" + selectedText + "[/small]";
+                break;
+            case "ul":
+                const ulLines = selectedText.split("\n");
+                formatted = ulLines
+                    .map(line => "- " + line)
+                    .join("\n");
+                break;
+            case "ol":
+                const olLines = selectedText.split("\n");
+                formatted = olLines
+                    .map((line, index) => (index + 1) + ". " + line)
+                    .join("\n");
+                break;
+        }
+
+        textarea.value =
+            textarea.value.substring(0, start) +
+            formatted +
+            textarea.value.substring(end);
+
+        textarea.focus();
+    }
+
+    function formatColor(color) {
+        const textarea = document.getElementById("bioText");
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const selectedText = textarea.value.substring(start, end);
+
+        const formatted = "[" + color + "]" + selectedText + "[/" + color + "]";
+
+        textarea.value =
+            textarea.value.substring(0, start) +
+            formatted +
+            textarea.value.substring(end);
+
+        textarea.focus();
     }
 </script>
 

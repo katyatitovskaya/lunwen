@@ -7,7 +7,7 @@ namespace Try2.Models.DTOs
     {
         [Required(ErrorMessage = "Имя пользователя обязательно")]
         [StringLength(30, MinimumLength = 3, ErrorMessage = "Имя пользователя должно содержать от 3 до 30 символов")]
-        [RegularExpression(@"^[A-Za-z_]+$", ErrorMessage = "Имя пользователя может содержать только буквы английского алфавита (A-Z, a-z) и символ подчеркивания (_)")]
+        [RegularExpression(@"^[A-Za-z0-9_]+$", ErrorMessage = "Имя пользователя может содержать только буквы английского алфавита, цифры и символ подчеркивания (_)")]
         [Display(Name = "Имя пользователя")]
         public string Username { get; set; }
 

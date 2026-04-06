@@ -12,8 +12,8 @@ namespace Try2.Models
 
         [Required]
         [MaxLength(30)]
-        [RegularExpression(@"^[A-Za-z_]+$", 
-            ErrorMessage = "Имя пользователя может содержать только буквы английского алфавита (A-Z, a-z) и символ подчеркивания (_)")]
+        [RegularExpression(@"^[A-Za-z0-9_]+$", 
+            ErrorMessage = "Имя пользователя может содержать только буквы английского алфавита, цифры и символ подчеркивания")]
         public string Username { get; set; }
 
         [Required]

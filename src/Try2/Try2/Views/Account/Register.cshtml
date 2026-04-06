@@ -19,14 +19,14 @@
                             <label asp-for="Username" class="form-label">Имя пользователя *</label>
                             <input asp-for="Username" class="form-control"
                                    id="usernameInput" minlength="3" required
-                                   pattern="[A-Za-z_]+"
+                                   pattern="[A-Za-z0-9_]+"
                                    title="Только буквы английского алфавита и символ подчеркивания" />
                             <span asp-validation-for="Username" class="text-danger"></span>
                             <div class="form-text" id="usernameHelp">
-                                Минимум 3 символа. Только буквы английского алфавита (A-Z, a-z) и символ подчеркивания (_)
+                                Минимум 3 символа. 
                             </div>
                             <div class="invalid-feedback" id="usernameError" style="display:none;">
-                                Имя пользователя может содержать только буквы английского алфавита и символ подчеркивания
+                                Имя пользователя может содержать только буквы английского алфавита, цифры и символ подчеркивания
                             </div>
                         </div>
 
@@ -87,7 +87,7 @@
 
             // Функция для проверки username (только английские буквы и _)
             function isValidUsername(username) {
-                const usernameRegex = /^[A-Za-z_]+$/;
+                const usernameRegex = /^[A-Za-z0-9_]+$/;
                 return usernameRegex.test(username);
             }
 
@@ -102,12 +102,12 @@
                     usernameHelp.style.color = '#dc3545';
 
                     // Удаляем недопустимые символы
-                    const validUsername = username.replace(/[^A-Za-z_]/g, '');
+                    const validUsername = username.replace(/[^A-Za-z0-9_]/g, '');
                     if (validUsername !== username) {
                         this.value = validUsername;
                     }
                 } else {
-                    if (username.length >= 3) {
+                    if (username.length > 1) {
                         this.classList.remove('is-invalid');
                         usernameError.style.display = 'none';
                         usernameHelp.style.color = '';
@@ -133,7 +133,7 @@
                 }
 
                 // Проверяем, является ли вводимый символ допустимым
-                if (!/^[A-Za-z_]$/.test(key) && !e.ctrlKey && !e.metaKey) {
+                if (!/^[A-Za-z0-9_]$/.test(key) && !e.ctrlKey && !e.metaKey) {
                     e.preventDefault();
 
                     // Показываем временное сообщение об ошибке
@@ -150,7 +150,7 @@
             usernameInput.addEventListener('paste', function(e) {
                 e.preventDefault();
                 const pastedText = e.clipboardData.getData('text');
-                const validText = pastedText.replace(/[^A-Za-z_]/g, '');
+                const validText = pastedText.replace(/[^A-Za-z0-9_]/g, '');
 
                 const start = this.selectionStart;
                 const end = this.selectionEnd;

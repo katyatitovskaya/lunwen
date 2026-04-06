@@ -5,55 +5,89 @@
 <form asp-action="Create" method="post">
     @Html.AntiForgeryToken()
 
-    <div style="margin-bottom:6px">
-        <button type="button" onclick="formatText('bold')"><b>B</b></button>
-        <button type="button" onclick="formatText('italic')"><i>I</i></button>
-        <button type="button" onclick="formatText('ul')">• List</button>
-        <button type="button" onclick="formatText('ol')">1. List</button>
+    <div style="margin-bottom:10px; display: flex; flex-wrap: wrap; gap: 5px;">
+        <!-- Основное форматирование -->
+        <div style="margin-right: 15px;">
+            <button type="button" onclick="formatText('bold')" title="Жирный"><b>B</b></button>
+            <button type="button" onclick="formatText('italic')" title="Курсив"><i>I</i></button>
+            <button type="button" onclick="formatText('strike')" title="Зачеркнутый"><del>S</del></button>
+        </div>
+
+        <!-- Размер шрифта -->
+        <div style="margin-right: 15px;">
+            <button type="button" onclick="formatText('large')" title="Большой">A+</button>
+            <button type="button" onclick="formatText('medium')" title="Средний">A</button>
+            <button type="button" onclick="formatText('small')" title="Маленький">A-</button>
+        </div>
+
+        <!-- Цвет текста -->
+        <div style="margin-right: 15px;">
+            <button type="button" onclick="formatColor('red')" style="background-color: #8B0000;" title="Красный"></button>
+            <button type="button" onclick="formatColor('green')" style="background-color: #1B5E20;" title="Зеленый"></button>
+            <button type="button" onclick="formatColor('blue')" style="background-color: #00008B;" title="Синий"></button>
+            <button type="button" onclick="formatColor('orange')" style="background-color: #FF4500;" title="Оранжевый"></button>
+            <button type="button" onclick="formatColor('pink')" style="background-color: #FF1493;" title="Розовый"></button>
+        </div>
+
+        <!-- Списки -->
+        <div>
+            <button type="button" onclick="formatText('ul')" title="Маркированный список">• List</button>
+            <button type="button" onclick="formatText('ol')" title="Нумерованный список">1. List</button>
+        </div>
     </div>
 
     <textarea asp-for="Text"
               id="postText"
-              rows="5"
-              style="width:100%"
+              rows="10"
+              style="width:100%; font-family: monospace;"
               placeholder="Что у вас нового?"></textarea>
 
     <span asp-validation-for="Text"></span>
 
-    <button type="submit">Опубликовать</button>
+    <div style="margin-top: 10px;">
+        <button type="submit">Опубликовать</button>
+    </div>
 </form>
 
 <script>
-
     function formatText(type) {
-
         const textarea = document.getElementById("postText");
-
         const start = textarea.selectionStart;
         const end = textarea.selectionEnd;
-
         const selectedText = textarea.value.substring(start, end);
-
         let formatted = selectedText;
 
-        if (type === "bold")
-            formatted = "**" + selectedText + "**";
-
-        if (type === "italic")
-            formatted = "*" + selectedText + "*";
-        if (type === "ul") 
-        {
-            const lines = selectedText.split("\n");
-            formatted = lines
-                .map(line => "- " + line)
-                .join("\n");
-        }
-        if (type === "ol") 
-        {
-            const lines = selectedText.split("\n");
-            formatted = lines
-                .map((line, index) => (index + 1) + ". " + line)
-                .join("\n");
+        switch(type) {
+            case "bold":
+                formatted = "**" + selectedText + "**";
+                break;
+            case "italic":
+                formatted = "*" + selectedText + "*";
+                break;
+            case "strike":
+                formatted = "~~" + selectedText + "~~";
+                break;
+            case "large":
+                formatted = "[large]" + selectedText + "[/large]";
+                break;
+            case "medium":
+                formatted = "[medium]" + selectedText + "[/medium]";
+                break;
+            case "small":
+                formatted = "[small]" + selectedText + "[/small]";
+                break;
+            case "ul":
+                const ulLines = selectedText.split("\n");
+                formatted = ulLines
+                    .map(line => "- " + line)
+                    .join("\n");
+                break;
+            case "ol":
+                const olLines = selectedText.split("\n");
+                formatted = olLines
+                    .map((line, index) => (index + 1) + ". " + line)
+                    .join("\n");
+                break;
         }
 
         textarea.value =
@@ -63,4 +97,22 @@
 
         textarea.focus();
     }
+
+    function formatColor(color) {
+        const textarea = document.getElementById("postText");
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const selectedText = textarea.value.substring(start, end);
+
+        const formatted = "[" + color + "]" + selectedText + "[/" + color + "]";
+
+        textarea.value =
+            textarea.value.substring(0, start) +
+            formatted +
+            textarea.value.substring(end);
+
+        textarea.focus();
+    }
+
 </script>
+

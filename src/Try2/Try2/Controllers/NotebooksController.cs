@@ -220,8 +220,6 @@ namespace Try2.Controllers
         {
             var currentUserId = this.GetUserId();
 
-            
-
             var user = await _context.Users
                 .FirstOrDefaultAsync(u => u.Username == username);
             if (user == null)
