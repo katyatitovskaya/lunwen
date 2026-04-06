@@ -18,6 +18,9 @@ namespace Try2.Data
         public DbSet<PostLike> PostLikes { get; set; }
         public DbSet<CommentLike> CommentLikes { get; set; }
         public DbSet<Subscription> Subscriptions { get; set; }
+        public DbSet<Tag> Tags { get; set; }
+        public DbSet<PostTag> PostTags { get; set; }
+        public DbSet<UserTag> UserTags { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -70,6 +73,18 @@ namespace Try2.Data
                 .HasForeignKey(l => l.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<CommentLike>()
+                .HasOne(l => l.User)
+                .WithMany(u => u.CommentLikes)
+                .HasForeignKey(l => l.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<CommentLike>()
+                .HasOne(l => l.Comment)
+                .WithMany(c => c.Likes)
+                .HasForeignKey(l => l.CommentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             // Subscription отношения
             modelBuilder.Entity<Subscription>()
                 .HasOne(s => s.Follower)
@@ -81,6 +96,31 @@ namespace Try2.Data
                 .HasOne(s => s.TargetUser)
                 .WithMany(u => u.Followers)
                 .HasForeignKey(s => s.TargetUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Tags отношения
+            modelBuilder.Entity<PostTag>()
+                .HasOne(t => t.Tag)
+                .WithMany(p => p.PostTags)
+                .HasForeignKey(t => t.MainTagId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PostTag>()
+                .HasOne(t => t.Post)
+                .WithMany(p  => p.Tags)
+                .HasForeignKey(t => t.PostId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<UserTag>()
+                .HasOne(t => t.User)
+                .WithMany(u => u.Tags)
+                .HasForeignKey(t => t.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<UserTag>()
+                .HasOne(t => t.Tag)
+                .WithMany(ut => ut.UserTags)
+                .HasForeignKey(t => t.MainTagId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Индексы

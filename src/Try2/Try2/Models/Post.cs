@@ -22,5 +22,7 @@ namespace Try2.Models
         public ICollection<Comment> Comments { get; set; }
         public ICollection<PostLike> Likes { get; set; }
 
+        public ICollection<PostTag> Tags { get; set; } 
+
     }
 }

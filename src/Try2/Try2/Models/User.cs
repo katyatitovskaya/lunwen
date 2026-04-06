@@ -31,12 +31,13 @@ namespace Try2.Models
 
         public string? ProfilePhoto { get; set; }
 
-        public ICollection<Notebook> Notebooks { get; set; }
         public ICollection<StudyGroup> StudyGroups { get; set; }
         public ICollection<Post> Posts { get; set; }
         public ICollection<Comment> Comments { get; set; }
         public ICollection<PostLike> Likes { get; set; }
+        public ICollection<CommentLike> CommentLikes {  get; set; }
         public ICollection<Subscription> Subscriptions { get; set; }
         public ICollection<Subscription> Followers { get; set; }
+        public ICollection<UserTag> Tags { get; set; }
     }
 }
