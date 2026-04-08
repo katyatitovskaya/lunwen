@@ -1,8 +1,15 @@
-﻿@{
-    
-}
+﻿@model IEnumerable<dynamic>
 
-<div style="align-self:center">
-    <h1>This page is available only to admin</h1>
-    <img src="~/uploads/avatars/user_1.jpg" />
-</div>
+<h2>Управление тегами</h2>
+
+@foreach(var tag in Model)
+{
+    <div>
+        <p>@tag.Id</p>
+        <p>@tag.Name</p>
+        <p>@tag.TotalUsage</p>
+        <p>@tag.IsConfirmed</p>
+        <a asp-controller="Admin" 
+        asp-action="Confirm">Подтвердить</a>
+    </div>
+}

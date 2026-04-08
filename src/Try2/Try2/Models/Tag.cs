@@ -11,6 +11,10 @@ namespace Try2.Models
         [MaxLength(50)]
         public string Name { get; set; }
 
+        public bool IsConfirmed { get; set; } = false;
+        public DateTime? ConfirmedAt { get; set; }
+        public int? ConfirmedByUserId { get; set; }
+
         public ICollection<PostTag> PostTags { get; set; }
         public ICollection<UserTag> UserTags { get; set; }
     }
