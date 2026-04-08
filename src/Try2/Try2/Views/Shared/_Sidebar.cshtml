@@ -3,7 +3,8 @@
     <a asp-controller="Home" asp-action="Index">Главная</a>
 
     @if (User.Identity?.IsAuthenticated == true)
-    {
+    {   
+        
         <a asp-controller="User"
            asp-action="Profile"
            asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)">
@@ -12,6 +13,10 @@
 
         <a asp-controller="Notebooks" asp-action="Index">Тетради</a>
         <a asp-controller="Posts" asp-action="Favourites">Понравившиеся</a>
+        @* @if (User.FindFirstValue("IsAdmin")?.ToLower() == "true")
+        {
+            
+        } *@
         <form asp-controller="Account"
               asp-action="Logout"
               method="post">

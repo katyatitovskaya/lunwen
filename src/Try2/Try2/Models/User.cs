@@ -31,6 +31,17 @@ namespace Try2.Models
 
         public string? ProfilePhoto { get; set; }
 
+        [EmailAddress]
+        public string? Email { get; set; }
+        public bool IsEmailConfirmed { get; set; } = false;
+
+        public string? EmailConfirmationCode { get; set; }
+
+        public DateTime? EmailConfirmationCodeExpiry { get; set; }
+
+        [Required]
+        public bool IsAdmin { get; set; } = false;
+
         public ICollection<StudyGroup> StudyGroups { get; set; }
         public ICollection<Post> Posts { get; set; }
         public ICollection<Comment> Comments { get; set; }

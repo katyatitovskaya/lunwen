@@ -265,10 +265,11 @@ namespace Try2.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var userId = this.GetUserId();
+            var currentUser = await _context.Users.FindAsync(userId);
 
             var post = await _context.Posts.FindAsync(id);
             if (post == null) return NotFound();
-            if (post.AuthorId != userId) return Forbid();
+            if (post.AuthorId != userId && currentUser.IsAdmin == false) return Forbid();
 
             _context.Posts.Remove(post);
             await _context.SaveChangesAsync();

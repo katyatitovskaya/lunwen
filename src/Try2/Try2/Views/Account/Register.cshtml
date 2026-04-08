@@ -39,6 +39,13 @@
                     </div>
 
                     <div class="mb-3">
+                        <label asp-for="Email" class="form-label">Email *</label>
+                        <input asp-for="Email" type="email" class="form-control" required />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                        <div class="form-text">На этот адрес будет отправлен код подтверждения</div>
+                    </div>
+
+                    <div class="mb-3">
                         <label asp-for="Password" class="form-label">Пароль *</label>
                         <input asp-for="Password" type="password" class="form-control"
                                id="passwordInput" minlength="6" required />

@@ -11,6 +11,12 @@ namespace Try2.Extentions
                 controller.User.FindFirstValue(ClaimTypes.NameIdentifier)
             );
         }
+
+        public static bool IsAdmin(this ClaimsPrincipal user)
+        {
+            var isAdminClaim = user.FindFirstValue("IsAdmin");
+            return isAdminClaim != null && bool.Parse(isAdminClaim);
+        }
     }
 
 }

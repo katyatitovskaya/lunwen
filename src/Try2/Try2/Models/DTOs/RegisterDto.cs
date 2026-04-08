@@ -20,5 +20,13 @@ namespace Try2.Models.DTOs
         [Required]
         public UserRole Role { get; set; }
 
+        [Required]
+        [EmailAddress(ErrorMessage = "Некорректный email адрес")]
+        [Display(Name = "Email")]
+        public string Email { get; set; }
+
+        [Required]
+        public bool IsAdmin { get; set; }
+
     }
 }

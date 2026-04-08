@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Try2.Data;
+using Try2.Models.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,7 +26,7 @@ builder.Services.AddHttpClient("ApiClient", client =>
 {
     client.BaseAddress = new Uri("https://localhost:7012/");
 });
-
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -47,6 +48,7 @@ app.UseRouting();
 app.UseAuthentication();
 
 app.UseAuthorization();
+
 
 app.MapControllerRoute(
     name: "default",
