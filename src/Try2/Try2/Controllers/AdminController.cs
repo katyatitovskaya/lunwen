@@ -19,7 +19,7 @@ namespace Try2.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> AllTags()
+        public async Task<IActionResult> TagsIndex()
         {
             var allTags = await _context.Tags
                 .Select(t => new TagDto
@@ -31,7 +31,7 @@ namespace Try2.Controllers
                     UsersCount = t.UserTags.Count()
                 })
                 .OrderBy(t => t.IsConfirmed)     
-                .ThenByDescending(t => t.TotalUsage)
+                .ThenByDescending(t => t.PostsCount + t.UsersCount)
                 .ThenBy(t => t.Name)
                 .ToListAsync();
 
@@ -50,7 +50,7 @@ namespace Try2.Controllers
             tag.ConfirmedByUserId = this.GetUserId();
 
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(AllTags));
+            return RedirectToAction(nameof(Index));
         }
 
     }

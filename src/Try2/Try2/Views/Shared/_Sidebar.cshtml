@@ -13,10 +13,11 @@
 
         <a asp-controller="Notebooks" asp-action="Index">Тетради</a>
         <a asp-controller="Posts" asp-action="Favourites">Понравившиеся</a>
-        @* @if (User.FindFirstValue("IsAdmin")?.ToLower() == "true")
+        @if (User.FindFirstValue("IsAdmin")?.ToLower() == "true")
         {
-            
-        } *@
+            <a asp-controller="Admin" asp-action="TagsIndex">Управление тегами</a>
+        }
+        
         <form asp-controller="Account"
               asp-action="Logout"
               method="post">
