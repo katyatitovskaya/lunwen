@@ -1,6 +1,5 @@
 ﻿@model Try2.Models.DTOs.UserProfileDto
-
-
+@using Try2.Models.Enums;
 
 <div class="profile-container">
     <div class="profile-header">
@@ -17,9 +16,82 @@
 
         <div class="info">
             <h2>@Model.Nickname</h2>
-            <p>@Model.Username</p>
+            <a asp-controller="User" asp-action="Profile">@Model.Username</a>
             <p>@Model.Role</p>
-            <p>@Html.Raw(Try2.Models.Services.TextFormatter.FormatPostText(Model.Bio))</p>
+            
+            @{
+                var interestedTags = Model.UserTags.Where(t => t.Phase == TagStudyPhase.Interested).ToList();
+                var studyingTags = Model.UserTags.Where(t => t.Phase == TagStudyPhase.Studying).ToList();
+                var teachingTags = Model.UserTags.Where(t => t.Phase == TagStudyPhase.Teaching).ToList();
+            }
+
+            <div class="user-tags-profile">
+                @if (interestedTags.Any())
+                {
+                    <div class="tag-phase-group">
+                        <span class="phase-label">Интересуюсь: </span>
+                        <div class="phase-tags">
+                            @foreach (var tag in interestedTags)
+                            {
+                                <span class="profile-tag">
+                                    @tag.TagName
+                                    <span class="tag-year">с @tag.StudyStartYear</span>
+                                </span>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @if (studyingTags.Any())
+                {
+                    <div class="tag-phase-group">
+                        <span class="phase-label">Изучаю: </span>
+                        <div class="phase-tags">
+                            @foreach (var tag in studyingTags)
+                            {
+                                <span class="profile-tag">
+                                    @tag.TagName
+                                    <span class="tag-year">с @tag.StudyStartYear</span>
+                                    @if (!tag.IsConfirmed)
+                                    {
+                                        <span class="pending-badge" title="Ожидает подтверждения">⏳</span>
+                                    }
+                                </span>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @if (teachingTags.Any())
+                {
+                    <div class="tag-phase-group">
+                        <span class="phase-label">Преподаю: </span>
+                        <div class="phase-tags">
+                            @foreach (var tag in teachingTags)
+                            {
+                                <span class="profile-tag">
+                                    @tag.TagName
+                                    <span class="tag-year">с @tag.StudyStartYear</span>
+                                    @if (!tag.IsConfirmed)
+                                    {
+                                        <span class="pending-badge" title="Ожидает подтверждения">⏳</span>
+                                    }
+                                </span>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @if (!Model.UserTags.Any())
+                {
+                    <p class="no-tags-message">Теги не указаны</p>
+                }
+            </div>
+            <div class="bio-section">
+                <h6>Био</h6>
+                <p>@Html.Raw(Try2.Models.Services.TextFormatter.FormatPostText(Model.Bio))</p>
+            </div>
+            
 
             <div class="stats">
                 <span>Подписчики: @Model.FollowersCount</span>

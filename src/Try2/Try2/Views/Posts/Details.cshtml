@@ -35,6 +35,7 @@
             <form asp-controller="Posts"
                   asp-action="Like"
                   asp-route-postId="@Model.Id"
+                  class="form-as-a-button"
                   method="post">
                 <button type="submit">♡ @Model.LikesCount</button>
             </form>
@@ -44,6 +45,7 @@
             <form asp-controller="Posts"
                   asp-action="Unlike"
                   asp-route-postId="@Model.Id"
+                  class="form-as-a-button"
                   method="post">
                 <button type="submit">❤️ @Model.LikesCount</button>
             </form>

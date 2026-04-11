@@ -33,7 +33,78 @@
     </div>
 
     <label>Ваши теги</label>
-    <input type="search" data="Tags" />
+    <div class="mb-3">
+
+        <!-- Список добавленных тегов -->
+        <div id="userTagsList" class="user-tags-list mb-2">
+            @if(Model.UserTags.Count==0)
+            {
+                <div>У Вас пока не указаны теги, Вы можете добавить их ниже :)</div>
+            }
+            else
+            {
+                foreach (var tag in Model.UserTags)
+                {
+                    <div class="user-tag-item" data-tag-id="@tag.Id">
+                        <span class="tag-name">
+                            @tag.TagName
+                            @if (!tag.IsConfirmed)
+                            {
+                                <span class="pending-badge" title="Ожидает подтверждения администратором">⏳</span>
+                            }
+                        </span>
+                        <span class="tag-year">с @tag.StudyStartYear</span>
+                        <button type="button" class="btn-remove-tag" onclick="removeUserTag(@tag.Id, this)">
+                            ✕
+                        </button>
+                    </div>
+                }
+            }
+            
+        </div>
+
+        <!-- Добавление нового тега -->
+
+        <div class="tag-input-container">
+            <div class="row g-2">
+                <div class="col-md-4 position-relative">
+                    <label class="form-label small mb-1">Фаза изучения</label>
+                    <select id="studyPhaseSelect" class="form-select">
+                        <option value="0">Интересуюсь</option>
+                        <option value="1">Изучаю</option>
+                        <option value="2">Преподаю</option>
+                    </select>
+                </div>
+                <div class="col-md-4 position-relative">
+                    <label class="form-label small mb-1">Тег</label>
+                    <input type="text"
+                           id="tagSearchInput"
+                           class="form-control"
+                           placeholder="Введите название тега..."
+                           autocomplete="off" />
+                    <div id="tagSuggestions" class="tag-suggestions-dropdown"></div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small mb-1">Год начала</label>
+                    <input type="number"
+                           id="studyYearInput"
+                           class="form-control"
+                           placeholder="Год"
+                           min="1950"
+                           max="@DateTime.Now.Year"
+                           value="@DateTime.Now.Year" />
+                </div>
+            </div>
+            <div class="mt-2">
+                <button type="button"
+                        id="addTagBtn"
+                        class="btn btn-primary"
+                        onclick="addOrSuggestTag()">
+                    + Добавить тег
+                </button>
+            </div>
+        </div>
+
 
     <label>Био</label>
     <div style="margin-bottom:10px; display: flex; flex-wrap: wrap; gap: 5px;">
@@ -154,6 +225,207 @@
             textarea.value.substring(end);
 
         textarea.focus();
+    }
+
+    let searchTimeout;
+    const tagSearchInput = document.getElementById('tagSearchInput');
+    const suggestionsDiv = document.getElementById('tagSuggestions');
+
+    // Поиск тегов при вводе
+    tagSearchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        const term = this.value.trim();
+
+        if (term.length < 1) {
+            suggestionsDiv.style.display = 'none';
+            return;
+        }
+
+        searchTimeout = setTimeout(() => searchTags(term), 300);
+    });
+
+    // Показать предложения при фокусе
+    tagSearchInput.addEventListener('focus', function() {
+        if (this.value.trim().length > 0) {
+            searchTags(this.value.trim());
+        }
+    });
+
+    // Закрытие выпадающего списка при клике вне
+    document.addEventListener('click', function(e) {
+        if (!tagSearchInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+            suggestionsDiv.style.display = 'none';
+        }
+    });
+
+    // Поиск тегов через API
+    async function searchTags(term) {
+        try {
+            const response = await fetch(`/api/tags/search?term=${encodeURIComponent(term)}`);
+            const tags = await response.json();
+
+            if (tags.length > 0) {
+                displaySuggestions(tags);
+            } else {
+                suggestionsDiv.style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Ошибка поиска тегов:', error);
+        }
+    }
+
+    // Отображение выпадающего списка
+    function displaySuggestions(tags) {
+        suggestionsDiv.innerHTML = tags.map(tag => `
+            <div class="tag-suggestion-item" onclick="selectTag('${tag.id}', '${tag.name.replace(/'/g, "\\'")}')">
+                <span class="tag-suggestion-name">
+                    #${tag.name}
+                    ${!tag.isConfirmed ? '<span class="tag-new-indicator">новый</span>' : ''}
+                </span>
+                <span class="tag-suggestion-usage">${tag.usageCount} исп.</span>
+            </div>
+        `).join('');
+
+        suggestionsDiv.style.display = 'block';
+    }
+
+    // Выбор тега из списка
+    function selectTag(tagId, tagName) {
+        tagSearchInput.value = tagName;
+        tagSearchInput.dataset.selectedTagId = tagId;
+        suggestionsDiv.style.display = 'none';
+    }
+
+    // Добавление или предложение тега
+    async function addOrSuggestTag() {
+        const tagName = tagSearchInput.value.trim();
+        const selectedTagId = tagSearchInput.dataset.selectedTagId;
+        const yearInput = document.getElementById('studyYearInput');
+        const year = parseInt(yearInput.value);
+        const phaseSelect = document.getElementById('studyPhaseSelect');
+        const phase = parseInt(phaseSelect.value);
+
+        if (!tagName) {
+            alert('Введите название тега');
+            return;
+        }
+
+        if (!year || year < 1950 || year > new Date().getFullYear()) {
+            alert('Пожалуйста, укажите корректный год (1950 - ' + new Date().getFullYear() + ')');
+            return;
+        }
+
+        const addBtn = document.getElementById('addTagBtn');
+        addBtn.disabled = true;
+        addBtn.textContent = 'Добавление...';
+
+        try {
+            const requestData = {
+                studyStartYear: year,
+                phase: phase
+            };
+
+            if (selectedTagId) {
+                requestData.tagId = parseInt(selectedTagId);
+            } else {
+                requestData.tagName = tagName;
+            }
+
+            const response = await fetch('/api/tags/user/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData)
+            });
+
+            if (response.ok) {
+                const newTag = await response.json();
+                addTagToUI(newTag);
+
+                // Очищаем поля
+                tagSearchInput.value = '';
+                delete tagSearchInput.dataset.selectedTagId;
+                yearInput.value = new Date().getFullYear();
+                phaseSelect.value = '0';
+                suggestionsDiv.style.display = 'none';
+
+                // Убираем сообщение "У Вас пока не указаны теги" если оно есть
+                const emptyMessage = document.querySelector('#userTagsList div');
+                if (emptyMessage && emptyMessage.textContent.includes('пока не указаны')) {
+                    emptyMessage.remove();
+                }
+
+                if (!newTag.isConfirmed) {
+                    alert('Тег добавлен и ожидает подтверждения администратором');
+                }
+            } else {
+                const error = await response.text();
+                alert(error || 'Ошибка при добавлении тега');
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            alert('Ошибка при добавлении тега');
+        } finally {
+            addBtn.disabled = false;
+            addBtn.textContent = '+ Добавить тег';
+        }
+    }
+
+    // Добавление тега
+    function addTagToUI(tag) {
+        const tagsList = document.getElementById('userTagsList');
+
+        const phaseText = getPhaseText(tag.phase);
+
+        const tagElement = document.createElement('div');
+        tagElement.className = 'user-tag-item';
+        tagElement.dataset.tagId = tag.id;
+        tagElement.innerHTML = `
+            <span class="tag-name">
+                #${tag.tagName}
+                ${!tag.isConfirmed ? '<span class="pending-badge" title="Ожидает подтверждения администратором">⏳</span>' : ''}
+            </span>
+            <span class="tag-year">с ${tag.studyStartYear}</span>
+            <button type="button" class="btn-remove-tag" onclick="removeUserTag(${tag.id}, this)">
+                ✕
+            </button>
+        `;
+
+        tagsList.appendChild(tagElement);
+    }
+
+    // Получение текста фазы
+    function getPhaseText(phase) {
+        const phases = ['Интересуюсь', 'Изучаю', 'Преподаю'];
+        return phases[phase] || 'Интересуюсь';
+    }
+
+    // Удаление тега
+    async function removeUserTag(userTagId, buttonElement) {
+        if (!confirm('Удалить этот тег?')) return;
+
+        try {
+            const response = await fetch(`/api/tags/user/remove/${userTagId}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                const tagItem = buttonElement.closest('.user-tag-item');
+                tagItem.remove();
+
+                // Если тегов не осталось, показываем сообщение
+                const tagsList = document.getElementById('userTagsList');
+                if (tagsList.children.length === 0) {
+                    tagsList.innerHTML = '<div>У Вас пока не указаны теги, Вы можете добавить их ниже :)</div>';
+                }
+            } else {
+                alert('Ошибка при удалении тега');
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            alert('Ошибка при удалении тега');
+        }
     }
 </script>
 

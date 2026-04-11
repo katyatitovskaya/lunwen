@@ -29,6 +29,7 @@ namespace Try2.Models.DTOs
         public bool IsFollowedByCurrentUser { get; set; }
 
         public List<PostDto> Posts { get; set; } = new();
+        public List<UserTagDto> UserTags { get; set; } = new();
     }
 
 }

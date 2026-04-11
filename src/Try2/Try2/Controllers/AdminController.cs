@@ -50,7 +50,7 @@ namespace Try2.Controllers
             tag.ConfirmedByUserId = this.GetUserId();
 
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(TagsIndex));
         }
 
     }

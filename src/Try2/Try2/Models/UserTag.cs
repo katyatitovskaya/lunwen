@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Try2.Models.Enums;
 
 namespace Try2.Models
 {
@@ -17,6 +18,9 @@ namespace Try2.Models
         [Required]
         [Range(1950, int.MaxValue)]
         public int StudyStartYear { get; set; }
+
+        [Required]
+        public TagStudyPhase Phase { get; set; }
 
         [ForeignKey("UserId")]
         public User User { get; set; }

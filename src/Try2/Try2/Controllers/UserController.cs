@@ -41,6 +41,22 @@ namespace Try2.Controllers
                     s.TargetUserId == user.Id);
             }
 
+            var userTags = await _context.UserTags
+        .Where(ut => ut.UserId == id)
+        .Include(ut => ut.Tag)
+        .Select(ut => new UserTagDto
+        {
+            Id = ut.Id,
+            TagId = ut.MainTagId,
+            TagName = ut.Tag.Name,
+            StudyStartYear = ut.StudyStartYear,
+            Phase = ut.Phase,
+            IsConfirmed = ut.Tag.IsConfirmed
+        })
+        .OrderBy(ut => ut.TagName)
+        .ToListAsync();
+
+
             var vm = new UserProfileDto
             {
                 Id = user.Id,
@@ -68,7 +84,8 @@ namespace Try2.Controllers
                         PublicationDate = p.PublicationDate,
                         LikesCount = p.Likes.Count
                     })
-                    .ToList()
+                    .ToList(),
+                UserTags = userTags
             };
 
             return View(vm);
@@ -139,13 +156,30 @@ namespace Try2.Controllers
             if (user == null)
                 return NotFound();
 
+            var userTags = await _context.UserTags
+            .Where(ut => ut.UserId == currentUserId)
+            .Include(ut => ut.Tag)
+            .Select(ut => new UserTagDto
+            {
+                Id = ut.Id,
+                TagId = ut.MainTagId,
+                TagName = ut.Tag.Name,
+                StudyStartYear = ut.StudyStartYear,
+                Phase = ut.Phase,
+                IsConfirmed = ut.Tag.IsConfirmed
+            })
+            .OrderBy(ut => ut.TagName)
+            .ToListAsync();
+
+
             return View(new UserProfileDto
             {
                 Id = user.Id,
                 Username = user.Username,
                 Nickname = user.Nickname,
                 Bio = user.Bio,
-                ProfilePhotoPath = user.ProfilePhoto
+                ProfilePhotoPath = user.ProfilePhoto,
+                UserTags = userTags
             });
         }
         [HttpPost]
@@ -176,6 +210,7 @@ namespace Try2.Controllers
             user.Username = dto.Username;
             user.Nickname = dto.Nickname;
             user.Bio = dto.Bio;
+            
 
             // ЗАГРУЗКА ФОТО
             if (dto.ProfilePhoto != null && dto.ProfilePhoto.Length > 0)

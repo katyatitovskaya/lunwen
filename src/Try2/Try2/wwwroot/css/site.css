@@ -167,6 +167,14 @@ form {
     width: 100%;
 }
 
+    form.form-as-a-button {
+        background-color: transparent !important;
+        padding: 0 !important;
+        margin-bottom: 0 !important;
+        border: none !important;
+        
+    }
+
 /* Поля ввода */
 input[type="text"],
 input[type="password"],
@@ -276,7 +284,10 @@ hr {
     gap: 10px;
     flex-wrap: wrap;
 }
-
+.info p {
+    margin: 4px 0;
+    line-height: 1.3;
+}
 .nickname {
     color: #E65100;
     font-size: 1.5rem;
@@ -521,4 +532,207 @@ hr {
     outline-offset: 2px;
 }
 
+/* Какая то херня для тегов */
+.user-tags-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 40px;
+    padding: 10px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
 
+.user-tag-item {
+    display: inline-flex;
+    align-items: center;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 20px;
+    padding: 5px 12px;
+    gap: 8px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+    .user-tag-item .tag-name {
+        font-weight: 500;
+        color: #495057;
+    }
+
+    .user-tag-item .tag-phase {
+        color: #6c757d;
+        font-size: 0.85em;
+        background: #f8f9fa;
+        padding: 2px 6px;
+        border-radius: 10px;
+    }
+
+    .user-tag-item .tag-year {
+        color: #6c757d;
+        font-size: 0.9em;
+    }
+
+.pending-badge {
+    margin-left: 4px;
+    font-size: 14px;
+}
+
+.btn-remove-tag {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0 4px;
+    line-height: 1;
+}
+
+    .btn-remove-tag:hover {
+        color: #c82333;
+    }
+
+.tag-input-container {
+    position: relative;
+}
+
+.tag-suggestions-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    display: none;
+    margin-top: 2px;
+}
+
+.tag-suggestion-item {
+    padding: 10px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.15s;
+}
+
+    .tag-suggestion-item:hover {
+        background-color: #e7f1ff;
+    }
+
+.tag-suggestion-name {
+    font-weight: 500;
+}
+
+.tag-suggestion-usage {
+    font-size: 0.85em;
+    color: #6c757d;
+}
+
+.tag-new-indicator {
+    background-color: #ffc107;
+    color: #000;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 0.75em;
+    margin-left: 6px;
+}
+
+.tag-add-btn {
+    width: 100%;
+    height: 38px;
+    padding: 0 12px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    line-height: 38px;
+    white-space: nowrap;
+}
+
+    .tag-add-btn:hover {
+        background-color: #388E3C;
+        transform: translateY(-1px);
+        box-shadow: 0 3px 5px rgba(0, 0, 0, 0.15);
+    }
+
+    .tag-add-btn:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+.user-tags-profile {
+    margin: 1px 0;
+}
+
+.tag-phase-group {
+    margin-bottom: 5px;
+    line-height: 1.6;
+}
+
+.phase-label {
+    font-weight: 600;
+    color: #E65100;
+    margin-right: 8px;
+    display: inline-block;
+}
+
+.phase-tags {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.profile-tag {
+    display: inline-flex;
+    align-items: center;
+    background: #FFF8E1;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    color: #1B5E20;
+    gap: 4px;
+    border: 1px solid #1B5E20;
+}
+
+    .profile-tag .tag-year {
+        color: #888;
+        font-size: 0.8rem;
+        margin-left: 2px;
+    }
+
+.pending-badge {
+    margin-left: 4px;
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.no-tags-message {
+    color: #999;
+    font-style: italic;
+    margin: 10px 0;
+}
+
+
+.stats {
+    margin: 15px 0;
+}
+
+    .stats span {
+        margin-right: 20px;
+        color: #666;
+    }
