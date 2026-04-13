@@ -25,9 +25,7 @@ namespace Try2.Models.DTOs
         public ICollection<CommentDto> Comments { get; set; }
 
         public ICollection<PostLike> Likes {  get; set; }
-
-        
-
+        public ICollection<PostTagDto> PostTags { get; set; }
     }
 
 }

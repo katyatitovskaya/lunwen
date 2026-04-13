@@ -27,10 +27,70 @@ namespace Try2.Controllers
         }
 
         // POST /Posts/Create
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Create(PostDto dto, string PostTagIds)
+        //{
+        //    // Отладка
+        //    System.Diagnostics.Debug.WriteLine($"PostTagIds: {PostTagIds}");
+
+        //    if (string.IsNullOrWhiteSpace(dto.Text))
+        //    {
+        //        ModelState.AddModelError("", "Текст поста не может быть пустым");
+        //        return View(dto);
+        //    }
+
+        //    var userId = int.Parse(
+        //        User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value
+        //    );
+
+        //    var post = new Post
+        //    {
+        //        AuthorId = userId,
+        //        Text = dto.Text,
+        //        PublicationDate = DateTime.UtcNow
+        //    };
+
+        //    _context.Posts.Add(post);
+        //    await _context.SaveChangesAsync();
+
+        //    // Добавляем теги из строки PostTagIds
+        //    if (!string.IsNullOrEmpty(PostTagIds))
+        //    {
+        //        var tagIdArray = PostTagIds.Split(',').Select(int.Parse).ToArray();
+        //        int priority = 1;
+        //        foreach (var tagId in tagIdArray)
+        //        {
+        //            _context.PostTags.Add(new PostTag
+        //            {
+        //                PostId = post.Id,
+        //                MainTagId = tagId,
+        //                Priority = priority++
+        //            });
+        //        }
+        //        await _context.SaveChangesAsync();
+        //    }
+
+        //    return RedirectToAction("Profile", "User", new { id = userId });
+        //}
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(PostDto dto)
         {
+            // Полная отладка
+            System.Diagnostics.Debug.WriteLine("========== ВСЕ ДАННЫЕ ФОРМЫ ==========");
+            foreach (var key in Request.Form.Keys)
+            {
+                System.Diagnostics.Debug.WriteLine($"{key} = '{Request.Form[key]}'");
+            }
+            System.Diagnostics.Debug.WriteLine("======================================");
+
+            string PostTagIds = Request.Form["PostTagIds"].ToString();
+            System.Diagnostics.Debug.WriteLine($"PostTagIds из Request.Form: '{PostTagIds}'");
+            System.Diagnostics.Debug.WriteLine($"PostTagIds пустой: {string.IsNullOrEmpty(PostTagIds)}");
+            System.Diagnostics.Debug.WriteLine($"PostTagIds длина: {PostTagIds.Length}");
+
             if (string.IsNullOrWhiteSpace(dto.Text))
             {
                 ModelState.AddModelError("", "Текст поста не может быть пустым");
@@ -51,13 +111,55 @@ namespace Try2.Controllers
             _context.Posts.Add(post);
             await _context.SaveChangesAsync();
 
+            System.Diagnostics.Debug.WriteLine($"Пост создан с ID: {post.Id}");
+
+            if (!string.IsNullOrEmpty(PostTagIds))
+            {
+                System.Diagnostics.Debug.WriteLine($"Начинаем добавление тегов: '{PostTagIds}'");
+
+                try
+                {
+                    var tagIdArray = PostTagIds.Split(',').Select(int.Parse).ToArray();
+                    System.Diagnostics.Debug.WriteLine($"Распарсено тегов: {tagIdArray.Length}");
+
+                    int priority = 1;
+                    foreach (var tagId in tagIdArray)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Добавление PostTag: PostId={post.Id}, MainTagId={tagId}, Priority={priority}");
+
+                        var postTag = new PostTag
+                        {
+                            PostId = post.Id,
+                            MainTagId = tagId,
+                            Priority = priority++
+                        };
+                        _context.PostTags.Add(postTag);
+                    }
+
+                    var savedCount = await _context.SaveChangesAsync();
+                    System.Diagnostics.Debug.WriteLine($"Сохранено в базу: {savedCount} записей");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"ОШИБКА при добавлении тегов: {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($"StackTrace: {ex.StackTrace}");
+                }
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("PostTagIds пустой - теги не добавляются");
+            }
+
             return RedirectToAction("Profile", "User", new { id = userId });
         }
+
         [AllowAnonymous]
         public async Task<IActionResult> Details(int id)
         {
             var post = await _context.Posts
               .Include(p => p.Author)
+              .Include(p => p.Tags)
+                .ThenInclude(pt => pt.Tag)
               .Include(p => p.Likes)
               .Include(p => p.Comments)
                   .ThenInclude(c => c.User)
@@ -80,6 +182,19 @@ namespace Try2.Controllers
 
             var commentsTree = BuildCommentTree(post.Comments.ToList());
 
+            var postTags = post.Tags
+            .OrderBy(pt => pt.Priority)
+            .Select(pt => new PostTagDto
+            {
+                Id = pt.Id,
+                MainTagId = pt.MainTagId,
+                TagName = pt.Tag.Name,
+                PostId = pt.PostId,
+                Priority = pt.Priority
+            })
+            .ToList();
+
+
             var dto = new PostDto
             {
                 Id = post.Id,
@@ -91,7 +206,8 @@ namespace Try2.Controllers
                 LikesCount = post.Likes.Count,
                 IsLikedByCurrentUser = currentUserId != null &&
                     post.Likes.Any(l => l.UserId == currentUserId),
-                Comments = commentsTree
+                Comments = commentsTree,
+                PostTags = postTags
             };
             return View(dto);
         }
@@ -192,16 +308,34 @@ namespace Try2.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var post = await _context.Posts.FindAsync(id);
+            var post = await _context.Posts
+            .Include(p => p.Tags)
+                .ThenInclude(pt => pt.Tag)
+            .FirstOrDefaultAsync(p => p.Id == id);
+
             if (post == null) return NotFound();
 
             var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
             if (post.AuthorId != userId) return Forbid();
 
+            var postTags = post.Tags
+                .OrderBy(pt => pt.Priority)
+                .Select(pt => new PostTagDto
+                {
+                    Id = pt.Id,
+                    MainTagId = pt.MainTagId,
+                    TagName = pt.Tag.Name,
+                    PostId = pt.PostId,
+                    Priority = pt.Priority
+                })
+                .ToList();
+
+
             return View(new PostDto
             {
                 Id = post.Id,
-                Text = post.Text
+                Text = post.Text,
+                PostTags = postTags
             });
         }
 

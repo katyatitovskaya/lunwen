@@ -169,10 +169,9 @@ form {
 
     form.form-as-a-button {
         background-color: transparent !important;
-        padding: 0 !important;
+        padding: 3 !important;
         margin-bottom: 0 !important;
         border: none !important;
-        
     }
 
 /* Поля ввода */

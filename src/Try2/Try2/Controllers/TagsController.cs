@@ -175,14 +175,118 @@ namespace Try2.Controllers
                 return userId;
             return null;
         }
-    }
 
-    // Класс для запроса добавления тега
-    public class AddTagRequest
-    {
-        public int? TagId { get; set; }
-        public string? TagName { get; set; }
-        public int StudyStartYear { get; set; }
-        public TagStudyPhase Phase { get; set; }
+        // Добавьте в конец класса TagsController, перед закрывающей скобкой
+
+        // Добавить тег к посту
+        [HttpPost("post/add")]
+        public async Task<IActionResult> AddPostTag([FromBody] AddPostTagRequest request)
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null)
+                return Unauthorized();
+
+            // Проверяем, что пост принадлежит пользователю
+            var post = await _context.Posts
+                .FirstOrDefaultAsync(p => p.Id == request.PostId && p.AuthorId == userId);
+
+            if (post == null)
+                return Forbid();
+
+            // Проверяем, не добавлен ли уже такой тег
+            var existing = await _context.PostTags
+                .AnyAsync(pt => pt.PostId == request.PostId && pt.MainTagId == request.TagId);
+
+            if (existing)
+                return BadRequest("Тег уже добавлен");
+
+            // Определяем следующий приоритет
+            var maxPriority = await _context.PostTags
+                .Where(pt => pt.PostId == request.PostId)
+                .MaxAsync(pt => (int?)pt.Priority) ?? 0;
+
+            var postTag = new PostTag
+            {
+                PostId = request.PostId,
+                MainTagId = request.TagId,
+                Priority = maxPriority + 1
+            };
+
+            _context.PostTags.Add(postTag);
+            await _context.SaveChangesAsync();
+
+            // Загружаем данные для ответа
+            var tag = await _context.Tags.FindAsync(request.TagId);
+
+            return Ok(new PostTagDto
+            {
+                Id = postTag.Id,
+                MainTagId = postTag.MainTagId,
+                TagName = tag.Name,
+                PostId = postTag.PostId,
+                Priority = postTag.Priority
+            });
+        }
+
+        // Удалить тег из поста
+        [HttpDelete("post/remove/{postTagId}")]
+        public async Task<IActionResult> RemovePostTag(int postTagId)
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null)
+                return Unauthorized();
+
+            var postTag = await _context.PostTags
+                .Include(pt => pt.Post)
+                .FirstOrDefaultAsync(pt => pt.Id == postTagId);
+
+            if (postTag == null)
+                return NotFound();
+
+            if (postTag.Post.AuthorId != userId)
+                return Forbid();
+
+            _context.PostTags.Remove(postTag);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        [HttpGet("post/{postId}")]
+        public async Task<IActionResult> GetPostTags(int postId)
+        {
+            var postTags = await _context.PostTags
+                .Where(pt => pt.PostId == postId)
+                .Include(pt => pt.Tag)
+                .OrderBy(pt => pt.Priority)
+                .Select(pt => new PostTagDto
+                {
+                    Id = pt.Id,
+                    MainTagId = pt.MainTagId,
+                    TagName = pt.Tag.Name,
+                    PostId = pt.PostId,
+                    Priority = pt.Priority
+                })
+                .ToListAsync();
+
+            return Ok(postTags);
+        }
+
+        // Класс запроса
+        public class AddPostTagRequest
+        {
+            public int PostId { get; set; }
+            public int TagId { get; set; }
+        }
+
+
+        // Класс для запроса добавления тега
+        public class AddTagRequest
+        {
+            public int? TagId { get; set; }
+            public string? TagName { get; set; }
+            public int StudyStartYear { get; set; }
+            public TagStudyPhase Phase { get; set; }
+        }
     }
 }

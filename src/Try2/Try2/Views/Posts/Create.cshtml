@@ -44,6 +44,47 @@
 
     <span asp-validation-for="Text"></span>
 
+    <div id="postTagsList" class="user-tags-list mb-2">
+        @if (Model.PostTags != null)
+        {
+            foreach (var tag in Model.PostTags)
+            {
+                <div class="user-tag-item" data-tag-id="@tag.Id">
+                    <span class="tag-name">
+                        @tag.TagName </span>
+                    <button type="button" class="btn-remove-tag" onclick="removePostTag(@tag.Id, this)">
+                        ✕
+                    </button>
+                </div>
+            }
+        }
+    </div>
+
+    <!-- Добавление нового тега -->
+
+    <div class="tag-input-container">
+    <div class="row g-2">
+        <div class="col-md-12 position-relative">
+            <label class="form-label small mb-1">Тег</label>
+            <input type="text"
+                   id="tagSearchInput"
+                   class="form-control"
+                   placeholder="Введите название тега..."
+                   autocomplete="off" />
+            <div id="tagSuggestions" class="tag-suggestions-dropdown"></div>
+        </div>
+    </div>
+    <div class="mt-2">
+        <button type="button"
+                id="addTagBtn"
+                class="btn btn-primary">
+            + Добавить тег
+        </button>
+    </div>
+</div>
+
+    <input type="hidden" name="PostTagIds" id="PostTagIdsInput" value="" />
+
     <div style="margin-top: 10px;">
         <button type="submit">Опубликовать</button>
     </div>
@@ -113,6 +154,133 @@
 
         textarea.focus();
     }
+     
+    let addedTags = [];
+    let selectedTagId = null;
+    let searchTimeout;
+    const tagSearchInput = document.getElementById('tagSearchInput');
+    const suggestionsDiv = document.getElementById('tagSuggestions');
+    const addTagBtn = document.getElementById('addTagBtn');
+    const form = document.querySelector('form');
 
+    tagSearchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        const term = this.value.trim();
+        selectedTagId = null;
+        addTagBtn.disabled = true;
+
+        if (term.length < 1) {
+            suggestionsDiv.style.display = 'none';
+            return;
+        }
+        searchTimeout = setTimeout(() => searchTags(term), 300);
+    });
+
+    tagSearchInput.addEventListener('focus', function() {
+        if (this.value.trim().length > 0) {
+            searchTags(this.value.trim());
+        }
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!tagSearchInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+            suggestionsDiv.style.display = 'none';
+        }
+    });
+
+    async function searchTags(term) {
+        try {
+            const response = await fetch(`/api/tags/search?term=${encodeURIComponent(term)}`);
+            const tags = await response.json();
+            if (tags.length > 0) {
+                displaySuggestions(tags);
+            } else {
+                suggestionsDiv.style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Ошибка поиска тегов:', error);
+        }
+    }
+
+    function displaySuggestions(tags) {
+        suggestionsDiv.innerHTML = tags.map(tag => `
+            <div class="tag-suggestion-item" onclick="selectTag('${tag.id}', '${tag.name.replace(/'/g, "\\'")}')">
+                <span class="tag-suggestion-name">#${tag.name}</span>
+                <span class="tag-suggestion-usage">${tag.usageCount} исп.</span>
+            </div>
+        `).join('');
+        suggestionsDiv.style.display = 'block';
+    }
+
+    function selectTag(tagId, tagName) {
+        tagSearchInput.value = tagName;
+        selectedTagId = parseInt(tagId);
+        addTagBtn.disabled = false;
+        suggestionsDiv.style.display = 'none';
+    }
+
+    function addTagToPostList() {
+        if (!selectedTagId) {
+            alert('Выберите тег из списка');
+            return;
+        }
+
+        const tagName = tagSearchInput.value.trim();
+
+        if (addedTags.some(t => t.mainTagId === selectedTagId)) {
+            alert('Этот тег уже добавлен');
+            return;
+        }
+
+        addedTags.push({
+            mainTagId: selectedTagId,
+            tagName: tagName
+        });
+
+        renderTagsList();
+        updateHiddenTagField(); // Обновляем скрытое поле сразу
+
+        tagSearchInput.value = '';
+        selectedTagId = null;
+        addTagBtn.disabled = true;
+    }
+
+    function removeTagFromList(tagId) {
+        addedTags = addedTags.filter(t => t.mainTagId !== tagId);
+        renderTagsList();
+        updateHiddenTagField(); // Обновляем скрытое поле сразу
+    }
+
+    function renderTagsList() {
+        const container = document.getElementById('postTagsList');
+
+        if (addedTags.length === 0) {
+            container.innerHTML = '<div style="color: #999; width: 100%; text-align: center;">Теги не выбраны</div>';
+        } else {
+            container.innerHTML = addedTags.map((tag, index) => `
+                <div class="user-tag-item" data-tag-id="${tag.mainTagId}">
+                    <span class="tag-name">#${tag.tagName}</span>
+                    <span style="color: #6c757d; font-size: 0.8rem; margin-left: 5px;">#${index + 1}</span>
+                    <button type="button" class="btn-remove-tag" onclick="removeTagFromList(${tag.mainTagId})">✕</button>
+                </div>
+            `).join('');
+        }
+    }
+
+       function updateHiddenTagField() {
+        const hiddenInput = document.getElementById('PostTagIdsInput');
+        if (hiddenInput) {
+            hiddenInput.value = addedTags.map(t => t.mainTagId).join(',');
+            console.log('Updated PostTagIds input to:', hiddenInput.value);
+        } else {
+            console.error('PostTagIdsInput NOT FOUND!');
+        }
+    }
+
+    addTagBtn.onclick = addTagToPostList;
+
+    // Инициализация скрытого поля
+    updateHiddenTagField();
+    renderTagsList();
 </script>
 

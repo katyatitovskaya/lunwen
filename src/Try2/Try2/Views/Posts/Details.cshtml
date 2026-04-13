@@ -24,6 +24,21 @@
     @Html.Raw(Try2.Models.Services.TextFormatter.FormatPostText(Model.Text))
     </p>
 
+    <div id="postTagsList" class="phase-tags">
+        @if (Model.PostTags != null)
+        {
+            foreach (var tag in Model.PostTags)
+            {
+                <div class="profile-tag" data-tag-id="@tag.Id">
+                    <span class="tag-name">
+                        @tag.TagName
+                    </span>
+                    
+                </div>
+            }
+        }
+    </div>
+    <p></p>
     <small style="color:gray">
         @Model.PublicationDate.ToLocalTime()
     </small>
@@ -66,6 +81,7 @@
         </a>
 
         <form asp-controller="Posts"
+        class="form-as-a-button"
               asp-action="Delete"
               asp-route-id="@Model.Id"
               method="post"

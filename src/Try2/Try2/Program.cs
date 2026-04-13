@@ -31,6 +31,13 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.EnableSensitiveDataLogging(); // Показывает значения параметров
+    options.LogTo(Console.WriteLine, LogLevel.Information); // Вывод в консоль
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
