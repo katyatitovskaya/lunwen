@@ -1,5 +1,6 @@
 ﻿@using System.Security.Claims
 <div class="sidebar">
+    <a asp-controller="Search" asp-action="Index">Поиск</a>
     <a asp-controller="Home" asp-action="Index">Главная</a>
 
     @if (User.Identity?.IsAuthenticated == true)
