@@ -51,271 +51,7 @@
         </div>
     </div>
 </div>
-<style>
-    .search-container {
-        max-width: 1000px;
-        margin: 0 auto;
-        padding: 20px;
-    }
 
-    .search-controls {
-        background: #f8f9fa;
-        padding: 15px;
-        border-radius: 8px;
-    }
-
-    .search-row {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-        flex-wrap: wrap;
-    }
-
-    .search-input-wrapper {
-        flex: 1;
-        min-width: 100%;
-    }
-
-    .tag-input-wrapper {
-        flex: 2;
-        min-width: 220px;
-        position: relative;
-    }
-
-    .search-input {
-        width: 100%;
-        padding: 10px 12px;
-        border: 1px solid #FFB74D;
-        border-radius: 4px;
-        font-size: 0.95rem;
-        background: white;
-        margin: 0 !important;
-    }
-
-        .search-input:focus {
-            outline: none;
-            border-color: #4CAF50;
-            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
-        }
-
-    .search-select {
-        flex: 1;
-        min-width: 130px;
-        padding: 10px 12px;
-        border: 1px solid #FFB74D;
-        border-radius: 4px;
-        background: white;
-        margin: 0 !important;
-    }
-
-    .selected-tag-display {
-        flex: 1.5;
-        min-width: 180px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 10px 12px;
-        background: white;
-        border: 1px solid #FFB74D;
-        border-radius: 4px;
-    }
-
-    .tag-suggestions-dropdown {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background: white;
-        border: 1px solid #dee2e6;
-        border-radius: 4px;
-        max-height: 300px;
-        overflow-y: auto;
-        z-index: 9999;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        display: none;
-        margin-top: 2px;
-    }
-
-    .tag-suggestion-item {
-        padding: 10px 15px;
-        cursor: pointer;
-        display: flex;
-        justify-content: space-between;
-        border-bottom: 1px solid #f0f0f0;
-    }
-
-        .tag-suggestion-item:hover {
-            background-color: #e7f1ff;
-        }
-
-    .btn-remove-tag {
-        background: none !important;
-        border: none !important;
-        color: #dc3545 !important;
-        cursor: pointer;
-        font-size: 18px;
-        padding: 0 5px !important;
-        box-shadow: none !important;
-    }
-
-        .btn-remove-tag:hover {
-            color: #c82333 !important;
-            transform: none !important;
-        }
-
-    /* Результаты */
-    .users-results {
-        margin-bottom: 20px;
-    }
-
-    .user-card {
-        display: flex;
-        align-items: center;
-        padding: 12px;
-        background: white;
-        border: 1px solid #FFCC80;
-        border-radius: 8px;
-        margin-bottom: 8px;
-    }
-
-    .user-avatar {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        margin-right: 15px;
-        background: #FFE0B2;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 20px;
-        color: #E65100;
-    }
-
-        .user-avatar img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-    .user-info {
-        flex: 1;
-    }
-
-    .user-nickname {
-        font-weight: 600;
-        color: #E65100;
-    }
-
-        .user-nickname a {
-            color: #E65100;
-            text-decoration: none;
-        }
-
-            .user-nickname a:hover {
-                text-decoration: underline;
-            }
-
-    .user-username {
-        color: #4CAF50;
-        font-size: 0.9rem;
-    }
-
-    .user-tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 4px;
-        margin-top: 4px;
-    }
-
-    .mini-tag {
-        background: #f0f0f0;
-        padding: 2px 8px;
-        border-radius: 12px;
-        font-size: 0.75rem;
-        color: #666;
-    }
-
-    .section-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin-bottom: 12px;
-        color: #E65100;
-    }
-
-    .spinner-border {
-        display: inline-block;
-        width: 2rem;
-        height: 2rem;
-        border: 0.25em solid #4CAF50;
-        border-right-color: transparent;
-        border-radius: 50%;
-        animation: spinner-border 0.75s linear infinite;
-    }
-
-    @@keyframes spinner-border {
-        to {
-            transform: rotate(360deg);
-        }
-    }
-
-    .post-link {
-        text-decoration: none;
-        color: inherit;
-        display: block;
-    }
-
-    .post-card {
-        background-color: white;
-        border: 1px solid #FFCC80;
-        border-radius: 6px;
-        padding: 12px;
-        margin-bottom: 12px;
-        transition: all 0.2s ease;
-    }
-
-        .post-card:hover {
-            border-color: #4CAF50;
-            transform: translateY(-2px);
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-        }
-
-    .post-header {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 8px;
-    }
-
-    .post-author {
-        color: #E65100;
-        font-size: 0.95rem;
-    }
-
-    .post-username {
-        color: #4CAF50;
-        font-size: 0.85rem;
-    }
-
-    .post-text {
-        color: #5D4037;
-        font-size: 0.9rem;
-        line-height: 1.4;
-        margin-bottom: 10px;
-    }
-
-    .post-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 0.8rem;
-    }
-
-    .follow-btn {
-        padding: 6px 16px;
-        font-size: 0.85rem;
-    }
-</style>
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -464,85 +200,170 @@
                 let html = '';
 
                 // Пользователи
-                if (data.users && data.users.length > 0) {
-                    html += '<div class="users-results">';
-                    html += '<div class="section-title">👥 Пользователи (' + data.users.length + ')</div>';
+                    if (data.users && data.users.length > 0) 
+                    {
+                html += '<div class="users-results">';
+                html += '<div class="section-title">Пользователи (' + data.users.length + ')</div>';
 
-                    data.users.forEach(function(user) {
-                        html += '<div class="user-card">' +
-                            '<a href="/User/Profile/' + user.id + '" style="display:contents;">' +
-                                '<div class="user-avatar">' +
-                                    (user.profilePhotoPath
-                                        ? '<img src="' + user.profilePhotoPath + '" alt="' + user.nickname + '" />'
-                                        : user.nickname.charAt(0).toUpperCase()) +
-                                '</div>' +
-                            '</a>' +
-                            '<div class="user-info">' +
-                                '<div class="user-nickname">' +
-                                    '<a href="/User/Profile/' + user.id + '">' + user.nickname + '</a>' +
-                                '</div>' +
-                                '<div class="user-username">@@' + user.username + '</div>';
+                data.users.forEach(function(user) {
+                    html += '<div class="user-card">';
 
-                        if (user.tags && user.tags.length > 0) {
-                            html += '<div class="user-tags">';
-                            user.tags.slice(0, 5).forEach(function(t) {
-                                html += '<span class="mini-tag">' + t.tagName + ' (' + getPhaseShort(t.phase) + ')</span>';
-                            });
-                            html += '</div>';
-                        }
+                // Аватарка с ссылкой на профиль
+                html += '<a href="/User/Profile/' + user.id + '" style="display: contents;">';
+                if (user.profilePhotoPath) {
+                    html += '<img src="' + user.profilePhotoPath + '" class="user-avatar-img" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-right: 15px;" alt="' + user.nickname + '" />';
+                } else {
+                    html += '<div class="user-avatar" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; background: #FFE0B2; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #E65100;">' + user.nickname.charAt(0).toUpperCase() + '</div>';
+                }
+                html += '</a>';
 
-                        html += '</div>' +
-                            '<div>' +
-                                '<button class="btn follow-btn ' + (user.isFollowedByCurrentUser ? 'btn-outline-secondary' : 'btn-primary') + '" ' +
-                                    'onclick="toggleFollow(' + user.id + ', this)">' +
-                                    (user.isFollowedByCurrentUser ? 'Отписаться' : 'Подписаться') +
-                                '</button>' +
-                            '</div>' +
-                        '</div>';
-                    });
+                // Информация о пользователе
+                html += '<div class="user-info">';
+
+                // Никнейм - ссылка на профиль
+                html += '<div class="nickname" style="color: #E65100; font-size: 1.1rem; font-weight: 600;">';
+                html += '<a href="/User/Profile/' + user.id + '" style="color: #E65100; text-decoration: none;">' + user.nickname + '</a>';
+                html += '</div>';
+
+                // Юзернейм - ссылка на профиль
+                html += '<div class="username" style="color: #4CAF50; font-size: 0.9rem; margin-bottom: 5px;">';
+                html += '<a href="/User/Profile/' + user.id + '" style="color: #4CAF50; text-decoration: none;">@@' + user.username + '</a>';
+                html += '</div>';
+
+                // Теги пользователя
+                if (user.tags && user.tags.length > 0) {
+                    html += '<div class="user-tags-profile" style="margin: 5px 0;">';
+
+                    // Группируем теги по фазам
+                    var interestedTags = user.tags.filter(function(t) { return t.phase === 0; });
+                    var studyingTags = user.tags.filter(function(t) { return t.phase === 1; });
+                    var teachingTags = user.tags.filter(function(t) { return t.phase === 2; });
+
+                    // Интересуюсь
+                    if (interestedTags.length > 0) {
+                        html += '<div class="tag-phase-group" style="margin-bottom: 3px;">';
+                        html += '<span class="phase-label" style="font-weight: 600; color: #E65100; margin-right: 5px; font-size: 0.85rem;">Интересуюсь: </span>';
+                        html += '<div class="phase-tags" style="display: inline-flex; flex-wrap: wrap; gap: 4px;">';
+                        interestedTags.forEach(function(t) {
+                            html += '<span class="profile-tag" style="display: inline-flex; align-items: center; background: #FFF8E1; padding: 2px 8px; border-radius: 20px; font-size: 0.8rem; color: #1B5E20; gap: 2px; border: 1px solid #1B5E20;">';
+                            html += t.tagName;
+                            html += '<span class="tag-year" style="color: #888; font-size: 0.7rem; margin-left: 2px;">с ' + t.studyStartYear + '</span>';
+                            html += '</span>';
+                        });
+                        html += '</div></div>';
+                    }
+
+                    // Изучаю
+                    if (studyingTags.length > 0) {
+                        html += '<div class="tag-phase-group" style="margin-bottom: 3px;">';
+                        html += '<span class="phase-label" style="font-weight: 600; color: #E65100; margin-right: 5px; font-size: 0.85rem;">Изучаю: </span>';
+                        html += '<div class="phase-tags" style="display: inline-flex; flex-wrap: wrap; gap: 4px;">';
+                        studyingTags.forEach(function(t) {
+                            html += '<span class="profile-tag" style="display: inline-flex; align-items: center; background: #FFF8E1; padding: 2px 8px; border-radius: 20px; font-size: 0.8rem; color: #1B5E20; gap: 2px; border: 1px solid #1B5E20;">';
+                            html += t.tagName;
+                            html += '<span class="tag-year" style="color: #888; font-size: 0.7rem; margin-left: 2px;">с ' + t.studyStartYear + '</span>';
+                            if (!t.isConfirmed) {
+                                html += '<span class="pending-badge" title="Ожидает подтверждения" style="margin-left: 2px; font-size: 11px;">⏳</span>';
+                            }
+                            html += '</span>';
+                        });
+                        html += '</div></div>';
+                    }
+
+                    // Преподаю
+                    if (teachingTags.length > 0) {
+                        html += '<div class="tag-phase-group" style="margin-bottom: 3px;">';
+                        html += '<span class="phase-label" style="font-weight: 600; color: #E65100; margin-right: 5px; font-size: 0.85rem;">Преподаю: </span>';
+                        html += '<div class="phase-tags" style="display: inline-flex; flex-wrap: wrap; gap: 4px;">';
+                        teachingTags.forEach(function(t) {
+                            html += '<span class="profile-tag" style="display: inline-flex; align-items: center; background: #FFF8E1; padding: 2px 8px; border-radius: 20px; font-size: 0.8rem; color: #1B5E20; gap: 2px; border: 1px solid #1B5E20;">';
+                            html += t.tagName;
+                            html += '<span class="tag-year" style="color: #888; font-size: 0.7rem; margin-left: 2px;">с ' + t.studyStartYear + '</span>';
+                            if (!t.isConfirmed) {
+                                html += '<span class="pending-badge" title="Ожидает подтверждения" style="margin-left: 2px; font-size: 11px;">⏳</span>';
+                            }
+                            html += '</span>';
+                        });
+                        html += '</div></div>';
+                    }
 
                     html += '</div>';
                 }
 
-                // Посты
-                if (data.posts && data.posts.length > 0) {
-                    html += '<div class="posts-results">';
-                    html += '<div class="section-title">📝 Посты (' + data.posts.length + ')</div>';
+                html += '</div>'; // конец user-info
 
-                    data.posts.forEach(function(post) {
-                        html += '<a href="/Posts/Details/' + post.id + '" class="post-link">' +
-                            '<div class="post-card">' +
-                                '<a href="/User/Profile/' + post.authorId + '" onclick="event.stopPropagation();">' +
-                                    '<div class="post-header">' +
-                                        (post.authorProfilePhoto
-                                            ? '<img src="' + post.authorProfilePhoto + '" style="width:40px;height:40px;border-radius:50%;object-fit:cover;" />'
-                                            : '<div style="width:40px;height:40px;border-radius:50%;background:#FFE0B2;display:flex;align-items:center;justify-content:center;color:#E65100;">' + post.authorNickname.charAt(0).toUpperCase() + '</div>') +
-                                        '<div>' +
-                                            '<strong class="post-author">' + post.authorNickname + '</strong>' +
-                                            '<span class="post-username">@@' + post.authorUsername + '</span>' +
-                                        '</div>' +
-                                    '</div>' +
-                                '</a>' +
-                                '<div class="post-text">' + escapeHtml(post.text) + '</div>';
+                // Кнопка подписки
+                html += '<div>';
+                html += '<button class="btn follow-btn ' + (user.isFollowedByCurrentUser ? 'btn-outline-secondary' : 'btn-primary') + '" ';
+                html += 'onclick="toggleFollow(' + user.id + ', this)" style="padding: 6px 16px; font-size: 0.85rem;">';
+                html += (user.isFollowedByCurrentUser ? 'Отписаться' : 'Подписаться');
+                html += '</button>';
+                html += '</div>';
 
-                        if (post.tags && post.tags.length > 0) {
-                            html += '<div class="user-tags" style="margin-bottom:8px;">';
-                            post.tags.forEach(function(t) {
-                                html += '<span class="mini-tag">#' + t.tagName + '</span>';
-                            });
-                            html += '</div>';
-                        }
+                html += '</div>'; // конец user-card
+            });
 
-                        html += '<div class="post-footer">' +
-                                    '❤️ ' + post.likesCount +
-                                    '<span>' + new Date(post.publicationDate).toLocaleDateString() + '</span>' +
-                                '</div>' +
-                            '</div>' +
-                        '</a>';
-                    });
+            html += '</div>';
+        }
 
+                 // Посты
+        if (data.posts && data.posts.length > 0) {
+            html += '<div class="posts-results">';
+            html += '<div class="section-title">Посты (' + data.posts.length + ')</div>';
+
+            data.posts.forEach(function(post) {
+                html += '<div class="post-card">';
+
+                // Информация об авторе - ссылка на профиль
+                html += '<a href="/User/Profile/' + post.authorId + '" class="post-author-link">';
+                html += '<div class="post-header">';
+
+                // Фото пользователя
+                if (post.authorProfilePhoto) {
+                    html += '<img src="' + post.authorProfilePhoto + '" alt="Profile photo" style="width:40px; height:40px; border-radius:50%; object-fit:cover;" />';
+                } else {
+                    html += '<div style="width:40px; height:40px; border-radius:50%; background-color:#e0e0e0; display:flex; align-items:center; justify-content:center; font-size:20px; color:#666;">';
+                    html += (post.authorNickname ? post.authorNickname.charAt(0).toUpperCase() : '?');
                     html += '</div>';
                 }
+
+                // Информация об авторе
+                html += '<div>';
+                html += '<strong class="post-author">' + escapeHtml(post.authorNickname) + '</strong>';
+                html += '<span class="username" style="display: block;">@@' + escapeHtml(post.authorUsername) + '</span>';
+                html += '</div>';
+
+                html += '</div>';
+                html += '</a>';
+
+                html += '<a href="/Posts/Details/' + post.id + '" class="post-text-link" style="text-decoration: none; color: inherit;">';
+                html += '<div class="post-text">';
+                html += '<p>' + formatPostText(post.text) + '</p>';
+                html += '</div>';
+                html += '</a>';
+
+                // Теги поста
+                if (post.tags && post.tags.length > 0) {
+                    html += '<div class="post-tags-container" style="margin-bottom: 8px; display: flex; flex-wrap: wrap; gap: 5px;">';
+                    post.tags.forEach(function(t) {
+                        html += '<span class="post-tag-item" style="background: #f0f0f0; padding: 3px 10px; border-radius: 15px; font-size: 0.8rem; color: #555;">';
+                        html += '#' + escapeHtml(t.tagName);
+                        html += '</span>';
+                    });
+                    html += '</div>';
+                }
+
+                // Футер поста
+                html += '<div class="post-footer">';
+                html += '<span class="likes">❤️ ' + post.likesCount + '</span>';
+                html += '<span class="date">' + new Date(post.publicationDate).toLocaleDateString() + '</span>';
+                html += '</div>';
+
+                html += '</div>'; // конец post-card
+            });
+
+            html += '</div>';
+        }
 
                 if ((!data.users || data.users.length === 0) && (!data.posts || data.posts.length === 0)) {
                     html = '<div class="text-center text-muted py-5">Ничего не найдено</div>';
@@ -588,6 +409,50 @@
                 }
             };
         });
+
+                function formatPostText(text) {
+            if (!text) return '';
+
+            // Экранируем HTML
+            let formatted = escapeHtml(text);
+
+            // Жирный текст **текст**
+            formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+            // Курсив *текст*
+            formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+            // Зачеркнутый ~~текст~~
+            formatted = formatted.replace(/~~(.*?)~~/g, '<del>$1</del>');
+
+            // Размер текста [large]текст[/large]
+            formatted = formatted.replace(/\[large\](.*?)\[\/large\]/g, '<span style="font-size: 1.5em;">$1</span>');
+            formatted = formatted.replace(/\[medium\](.*?)\[\/medium\]/g, '<span style="font-size: 1.2em;">$1</span>');
+            formatted = formatted.replace(/\[small\](.*?)\[\/small\]/g, '<span style="font-size: 0.9em;">$1</span>');
+
+            // Цвета [red]текст[/red]
+            formatted = formatted.replace(/\[red\](.*?)\[\/red\]/g, '<span style="color: #8B0000;">$1</span>');
+            formatted = formatted.replace(/\[green\](.*?)\[\/green\]/g, '<span style="color: #1B5E20;">$1</span>');
+            formatted = formatted.replace(/\[blue\](.*?)\[\/blue\]/g, '<span style="color: #00008B;">$1</span>');
+            formatted = formatted.replace(/\[orange\](.*?)\[\/orange\]/g, '<span style="color: #FF4500;">$1</span>');
+            formatted = formatted.replace(/\[pink\](.*?)\[\/pink\]/g, '<span style="color: #FF1493;">$1</span>');
+
+            // Маркированный список
+            formatted = formatted.replace(/^- (.*?)$/gm, '<li style="margin-left: 20px;">$1</li>');
+            formatted = formatted.replace(/(<li.*?<\/li>)/gs, '<ul>$1</ul>');
+
+            // Переносы строк
+            formatted = formatted.replace(/\n/g, '<br>');
+
+            return formatted;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
     </script>
 }
 
