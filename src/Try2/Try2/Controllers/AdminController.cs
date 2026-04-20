@@ -53,5 +53,69 @@ namespace Try2.Controllers
             return RedirectToAction(nameof(TagsIndex));
         }
 
+        public async Task<IActionResult> DeleteTag(int id)
+        {
+            var tag = await _context.Tags.FindAsync(id);
+            if (tag == null)
+                return NotFound();
+
+            return View(tag);
+        }
+
+        [HttpPost, ActionName("DeleteTag")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteTagConfirmed(int id)
+        {
+            var tag = await _context.Tags.FindAsync(id);
+            if (tag == null)
+                return NotFound();
+
+            _context.Tags.Remove(tag);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(TagsIndex));
+        }
+
+        public async Task<IActionResult> EditTag(int id)
+        {
+            var tag = await _context.Tags.FindAsync(id);
+            if (tag == null)
+                return NotFound();
+
+            
+            var model = new TagDto
+            {
+                Id = tag.Id,
+                Name = tag.Name,
+                IsConfirmed = tag.IsConfirmed
+            };
+
+            return View(model);
+        }
+
+        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditTag(int id, [Bind("Id,Name")] TagDto model)
+        {
+            if (id != model.Id)
+                return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                var tag = await _context.Tags.FindAsync(id);
+                if (tag == null)
+                    return NotFound();
+
+                
+                tag.Name = model.Name;
+
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(TagsIndex));
+            }
+
+            return View(model);
+        }
+
     }
 }

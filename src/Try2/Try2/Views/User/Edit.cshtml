@@ -279,7 +279,7 @@
         suggestionsDiv.innerHTML = tags.map(tag => `
             <div class="tag-suggestion-item" onclick="selectTag('${tag.id}', '${tag.name.replace(/'/g, "\\'")}')">
                 <span class="tag-suggestion-name">
-                    #${tag.name}
+                    ${tag.name}
                     ${!tag.isConfirmed ? '<span class="tag-new-indicator">новый</span>' : ''}
                 </span>
                 <span class="tag-suggestion-usage">${tag.usageCount} исп.</span>

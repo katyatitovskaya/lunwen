@@ -103,7 +103,7 @@ namespace Try2.Data
                 .HasOne(t => t.Tag)
                 .WithMany(p => p.PostTags)
                 .HasForeignKey(t => t.MainTagId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<PostTag>()
                 .HasOne(t => t.Post)
@@ -115,13 +115,13 @@ namespace Try2.Data
                 .HasOne(t => t.User)
                 .WithMany(u => u.Tags)
                 .HasForeignKey(t => t.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<UserTag>()
                 .HasOne(t => t.Tag)
                 .WithMany(ut => ut.UserTags)
                 .HasForeignKey(t => t.MainTagId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Индексы
             modelBuilder.Entity<User>()

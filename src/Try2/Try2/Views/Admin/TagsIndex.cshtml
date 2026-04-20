@@ -21,7 +21,7 @@
         {
             <tr style="background-color: @(tag.IsConfirmed ? "#d4edda" : "#fff3cd")">
                 <td>@tag.Id</td>
-                <td>#@tag.Name</td>
+                <td>@tag.Name</td>
                 <td>@tag.TotalUsage</td>
                 <td>
                     @(tag.IsConfirmed ? "✓ Подтвержден" : "⏳ Ожидает")
@@ -32,8 +32,7 @@
                         <form asp-controller="Admin"
                               asp-action="ConfirmTag"
                               method="post"
-                              class="form-as-a-button"
-                              style="display: inline;">
+                              style="display: inline;" class="form-as-a-button">
                             <input type="hidden" name="id" value="@tag.Id" />
                             <button type="submit" class="btn btn-success btn-sm">
                                 Подтвердить
@@ -41,11 +40,21 @@
                         </form>
                     }
                     <a asp-controller="Admin"
-                       asp-action="EditTag"
+                       asp-action="DeleteTag"
                        asp-route-id="@tag.Id"
-                       class="btn btn-primary btn-sm">
-                        Редактировать
+                       class="btn btn-danger btn-sm">
+                        Удалить
                     </a>
+
+                    @if (!tag.IsConfirmed)
+                    {
+                        <a asp-controller="Admin"
+                           asp-action="EditTag"
+                           asp-route-id="@tag.Id"
+                           class="btn btn-primary btn-sm">
+                            Редактировать
+                        </a>
+                    }
                 </td>
             </tr>
         }

@@ -1,0 +1,18 @@
+﻿@model Try2.Models.Tag
+
+@{
+    ViewData["Title"] = "Удаление тега";
+}
+
+<h2>Удаление тега</h2>
+
+<div class="alert alert-danger">
+    <h4>Вы уверены, что хотите удалить тег <strong>@Model.Name</strong>?</h4>
+    <p>Это действие нельзя отменить. Тег будет удален у всех постов и пользователей.</p>
+</div>
+
+<form asp-action="DeleteTag">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Удалить</button>
+    <a asp-action="TagsIndex" class="btn btn-secondary">Отмена</a>
+</form>
