@@ -1,0 +1,682 @@
+﻿@* Views/NotebookPages/Details.cshtml *@
+@model Try2.Models.DTOs.NotebookPageDto
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background-color: #FFF8E1;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        overflow: hidden;
+    }
+
+    .page-container {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        background: linear-gradient(135deg, #FFFDE7 0%, #FFF9C4 100%);
+    }
+
+    /* Стрелка назад - верхний левый угол */
+    .back-arrow {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        z-index: 20;
+        background: rgba(255, 255, 255, 0.95);
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border: 2px solid #FFB74D;
+        backdrop-filter: blur(5px);
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: #E65100;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+        .back-arrow:hover {
+            background: #FF9800;
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(255, 152, 0, 0.3);
+        }
+
+    /* Верхняя панель с информацией о странице */
+    .page-header {
+        position: absolute;
+        top: 20px;
+        left: 90px;
+        z-index: 10;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 15px 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border: 1px solid #FFB74D;
+        backdrop-filter: blur(5px);
+    }
+
+    .page-theme-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .page-theme {
+        font-size: 28px;
+        font-weight: 700;
+        color: #E65100;
+        margin: 0;
+    }
+
+    .page-theme-input {
+        font-size: 28px;
+        font-weight: 700;
+        border: 2px solid #FFB74D;
+        border-radius: 8px;
+        padding: 5px 10px;
+        background: white;
+        color: #E65100;
+        width: 400px;
+    }
+
+    .edit-theme-btn {
+        background: none;
+        border: none;
+        color: #FF9800;
+        cursor: pointer;
+        font-size: 20px;
+        padding: 5px 10px;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+    }
+
+        .edit-theme-btn:hover {
+            opacity: 1;
+        }
+
+    .page-date {
+        font-size: 14px;
+        color: #FF9800;
+        font-style: italic;
+        margin-top: 5px;
+    }
+
+    /* Канвас для рисования */
+    #drawCanvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        cursor: crosshair;
+        background: transparent;
+        touch-action: none;
+        z-index: 1;
+    }
+
+    /* Инструменты рисования */
+    .drawing-tools {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+        z-index: 10;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 15px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border: 1px solid #FFB74D;
+        backdrop-filter: blur(5px);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-width: 80px;
+    }
+
+    .tool-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .tool-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+        border: 2px solid #FFB74D;
+        background: white;
+        cursor: pointer;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        color: #5D4037;
+    }
+
+        .tool-btn:hover {
+            background: #FFE0B2;
+            transform: scale(1.05);
+        }
+
+        .tool-btn.active {
+            background: #FF9800;
+            color: white;
+            border-color: #F57C00;
+        }
+
+    .color-picker {
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+        border: 2px solid #FFB74D;
+        cursor: pointer;
+        padding: 2px;
+    }
+
+    .brush-size-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        margin-top: 5px;
+    }
+
+    .brush-size-label {
+        font-size: 12px;
+        color: #5D4037;
+        font-weight: 600;
+    }
+
+    .brush-size {
+        width: 100%;
+        cursor: pointer;
+    }
+
+    .size-value {
+        font-size: 12px;
+        color: #E65100;
+        font-weight: 600;
+    }
+
+    /* Нижняя панель управления */
+    .page-footer {
+        position: absolute;
+        bottom: 20px;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 30px;
+        z-index: 10;
+        pointer-events: none;
+    }
+
+        .page-footer > * {
+            pointer-events: auto;
+        }
+
+    /* Кнопка создания новой страницы */
+    .new-page-btn {
+        background: #4CAF50;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 50px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+        transition: all 0.3s ease;
+        border: 2px solid #388E3C;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+        .new-page-btn:hover {
+            background: #388E3C;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(76, 175, 80, 0.4);
+            color: white;
+        }
+
+    /* Центральная группа кнопок навигации */
+    .navigation-controls {
+        display: flex;
+        gap: 20px;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 10px 20px;
+        border-radius: 50px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border: 1px solid #FFB74D;
+        backdrop-filter: blur(5px);
+    }
+
+    .nav-btn {
+        background: #FF9800;
+        color: white;
+        border: none;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        font-size: 24px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+    }
+
+        .nav-btn:hover:not(.disabled) {
+            background: #F57C00;
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4);
+        }
+
+        .nav-btn.disabled {
+            background: #BDBDBD;
+            cursor: not-allowed;
+            opacity: 0.5;
+            box-shadow: none;
+            pointer-events: none;
+        }
+
+    .page-indicator {
+        display: flex;
+        align-items: center;
+        padding: 0 15px;
+        font-size: 16px;
+        font-weight: 600;
+        color: #5D4037;
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 25px;
+    }
+
+    /* Кнопка возврата к тетради */
+    .back-to-notebook {
+        background: #FF5722;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 50px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(255, 87, 34, 0.3);
+        transition: all 0.3s ease;
+        border: 2px solid #D84315;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+        .back-to-notebook:hover {
+            background: #D84315;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(255, 87, 34, 0.4);
+            color: white;
+        }
+</style>
+
+<div class="page-container">
+    <!-- Стрелка назад -->
+    <a href="@Url.Action("Details", "Notebooks", new { id = Model.NotebookId })"
+       class="back-arrow save-before-navigate"
+       data-save-url="@Url.Action("Save", new { id = Model.Id })"
+       title="Вернуться к тетради">
+        ←
+    </a>
+
+    <!-- Верхний левый угол: тема и дата -->
+    <div class="page-header">
+        <div class="page-theme-container">
+            <div id="themeDisplay">
+                <h1 class="page-theme">@Model.Theme</h1>
+            </div>
+            <div id="themeEdit" style="display: none;">
+                <input type="text" id="themeInput" class="page-theme-input" value="@Model.Theme" />
+            </div>
+            <button class="edit-theme-btn" onclick="toggleThemeEdit()" title="Редактировать тему">
+                ✏️
+            </button>
+        </div>
+        <div class="page-date">
+            Создано: @Model.CreationDate.ToString("dd.MM.yyyy HH:mm")
+        </div>
+    </div>
+
+    <!-- Инструменты рисования -->
+    <div class="drawing-tools">
+        <div class="tool-group">
+            <button class="tool-btn" onclick="setTool('pencil')" id="pencilTool" title="Карандаш">✏️</button>
+            <button class="tool-btn" onclick="setTool('eraser')" id="eraserTool" title="Ластик">🧽</button>
+            <button class="tool-btn" onclick="clearCanvas()" title="Очистить всё">🗑️</button>
+        </div>
+
+        <input type="color" id="colorPicker" class="color-picker" value="#000000" title="Выбрать цвет" />
+
+        <div class="brush-size-container">
+            <span class="brush-size-label">Размер</span>
+            <input type="range" id="brushSize" class="brush-size" min="1" max="20" value="3" />
+            <span class="size-value" id="sizeValue">3</span>
+        </div>
+    </div>
+
+    <!-- Канвас для рисования -->
+    <canvas id="drawCanvas"></canvas>
+
+    <!-- Нижняя панель -->
+    <div class="page-footer">
+        <!-- Левая кнопка: создать новую страницу -->
+        <form asp-action="Create" asp-controller="NotebookPages" method="post" style="margin: 0;">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="notebookId" value="@Model.NotebookId" />
+            <button type="submit" class="new-page-btn">
+                <span>📄</span> Новая страница
+            </button>
+        </form>
+
+        <!-- Центральные кнопки навигации -->
+        <div class="navigation-controls">
+            @if (Model.HasPreviousPage)
+            {
+                <a href="@Url.Action("Previous", new { currentPageId = Model.Id })"
+                   class="nav-btn save-before-navigate"
+                   data-save-url="@Url.Action("Save", new { id = Model.Id })">
+                    ←
+                </a>
+            }
+            else
+            {
+                <span class="nav-btn disabled">←</span>
+            }
+
+            <div class="page-indicator">
+                @Model.CurrentPageIndex / @Model.TotalPages
+            </div>
+
+            @if (Model.HasNextPage)
+            {
+                <a href="@Url.Action("Next", new { currentPageId = Model.Id })"
+                   class="nav-btn save-before-navigate"
+                   data-save-url="@Url.Action("Save", new { id = Model.Id })">
+                    →
+                </a>
+            }
+            else
+            {
+                <span class="nav-btn disabled">→</span>
+            }
+        </div>
+
+        <!-- Правая кнопка: вернуться к тетради -->
+        <a href="@Url.Action("Details", "Notebooks", new { id = Model.NotebookId })"
+           class="back-to-notebook save-before-navigate"
+           data-save-url="@Url.Action("Save", new { id = Model.Id })">
+            📓 К тетради
+        </a>
+    </div>
+</div>
+
+<script>
+    let canvas = document.getElementById('drawCanvas');
+    let ctx = canvas.getContext('2d');
+    let isDrawing = false;
+    let currentTool = 'pencil';
+    let lastX = 0;
+    let lastY = 0;
+
+    // Загружаем сохраненные данные
+    let savedData = @Html.Raw(Json.Serialize(Model.JsonContents));
+
+    function initCanvas() {
+        resizeCanvas();
+
+        // Загружаем сохраненное содержимое
+        if (savedData && savedData !== '') {
+            let img = new Image();
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0);
+            };
+            img.src = savedData;
+        }
+
+        // Настройки по умолчанию
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+    }
+
+    function resizeCanvas() {
+        let tempData = canvas.toDataURL();
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        if (tempData && tempData !== 'data:,') {
+            let img = new Image();
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0);
+            };
+            img.src = tempData;
+        } else if (savedData && savedData !== '') {
+            let img = new Image();
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0);
+            };
+            img.src = savedData;
+        }
+    }
+
+    function setTool(tool) {
+        currentTool = tool;
+        document.getElementById('pencilTool').classList.remove('active');
+        document.getElementById('eraserTool').classList.remove('active');
+
+        if (tool === 'pencil') {
+            document.getElementById('pencilTool').classList.add('active');
+            ctx.globalCompositeOperation = 'source-over';
+        } else if (tool === 'eraser') {
+            document.getElementById('eraserTool').classList.add('active');
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.lineWidth = document.getElementById('brushSize').value * 2;
+        }
+    }
+
+    function startDrawing(e) {
+        isDrawing = true;
+        [lastX, lastY] = getCoordinates(e);
+    }
+
+    function draw(e) {
+        if (!isDrawing) return;
+
+        e.preventDefault();
+
+        let [currentX, currentY] = getCoordinates(e);
+
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(currentX, currentY);
+
+        let color = document.getElementById('colorPicker').value;
+        let size = parseInt(document.getElementById('brushSize').value);
+
+        if (currentTool === 'pencil') {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = size;
+            ctx.globalCompositeOperation = 'source-over';
+        } else if (currentTool === 'eraser') {
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = size * 2;
+            ctx.globalCompositeOperation = 'destination-out';
+        }
+
+        ctx.stroke();
+
+        [lastX, lastY] = [currentX, currentY];
+    }
+
+    function stopDrawing() {
+        isDrawing = false;
+        saveCanvasState();
+    }
+
+    function getCoordinates(e) {
+        let rect = canvas.getBoundingClientRect();
+        let x, y;
+
+        if (e.touches) {
+            x = e.touches[0].clientX - rect.left;
+            y = e.touches[0].clientY - rect.top;
+        } else {
+            x = e.clientX - rect.left;
+            y = e.clientY - rect.top;
+        }
+
+        return [x, y];
+    }
+
+    function clearCanvas() {
+        if (confirm('Очистить страницу? Все рисунки будут удалены.')) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            savedData = '';
+            saveCanvasState();
+        }
+    }
+
+    function saveCanvasState() {
+        let dataURL = canvas.toDataURL();
+        let theme = document.getElementById('themeInput').value || '@Model.Theme';
+        let token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+
+        fetch('@Url.Action("Save", new { id = Model.Id })', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'RequestVerificationToken': token
+            },
+            body: `id=@Model.Id&theme=${encodeURIComponent(theme)}&jsonContents=${encodeURIComponent(dataURL)}`
+        }).then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  console.log('Сохранено');
+              }
+          });
+    }
+
+    function toggleThemeEdit() {
+        let display = document.getElementById('themeDisplay');
+        let edit = document.getElementById('themeEdit');
+        let input = document.getElementById('themeInput');
+
+        if (display.style.display !== 'none') {
+            display.style.display = 'none';
+            edit.style.display = 'block';
+            input.focus();
+            input.select();
+        } else {
+            display.style.display = 'block';
+            edit.style.display = 'none';
+
+            // Обновляем отображаемую тему
+            let newTheme = input.value || 'Без темы';
+            display.querySelector('.page-theme').textContent = newTheme;
+
+            // Сохраняем изменения
+            saveCanvasState();
+        }
+    }
+
+    // Обновление отображения размера кисти
+    document.getElementById('brushSize').addEventListener('input', function() {
+        document.getElementById('sizeValue').textContent = this.value;
+    });
+
+    // Обработчики событий
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseout', stopDrawing);
+
+    canvas.addEventListener('touchstart', startDrawing);
+    canvas.addEventListener('touchmove', draw);
+    canvas.addEventListener('touchend', stopDrawing);
+
+    window.addEventListener('resize', () => {
+        let dataURL = canvas.toDataURL();
+        resizeCanvas();
+        if (dataURL && dataURL !== 'data:,') {
+            let img = new Image();
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0);
+            };
+            img.src = dataURL;
+        }
+    });
+
+    // Сохранение перед навигацией
+    document.querySelectorAll('.save-before-navigate').forEach(element => {
+        element.addEventListener('click', function(e) {
+            e.preventDefault();
+            let url = this.href;
+            saveCanvasState();
+
+            // Небольшая задержка для сохранения
+            setTimeout(() => {
+                window.location.href = url;
+            }, 150);
+        });
+    });
+
+    // Обработка Enter в поле ввода темы
+    document.getElementById('themeInput')?.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            toggleThemeEdit();
+        }
+    });
+
+    // Обработка клика вне поля редактирования темы
+    document.addEventListener('click', function(e) {
+        let themeEdit = document.getElementById('themeEdit');
+        let themeDisplay = document.getElementById('themeDisplay');
+        let editBtn = document.querySelector('.edit-theme-btn');
+
+        if (themeEdit.style.display !== 'none' &&
+            !themeEdit.contains(e.target) &&
+            e.target !== editBtn &&
+            !editBtn.contains(e.target)) {
+            toggleThemeEdit();
+        }
+    });
+
+    // Инициализация
+    initCanvas();
+    setTool('pencil');
+
+    // Добавляем CSRF токен если его нет
+    if (!document.querySelector('input[name="__RequestVerificationToken"]')) {
+        let token = document.createElement('input');
+        token.type = 'hidden';
+        token.name = '__RequestVerificationToken';
+        let existingToken = document.querySelector('input[name="__RequestVerificationToken"]');
+        token.value = existingToken ? existingToken.value : '';
+        document.body.appendChild(token);
+    }
+</script>

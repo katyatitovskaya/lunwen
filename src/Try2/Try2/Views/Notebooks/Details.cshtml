@@ -254,11 +254,47 @@
         <div class="description-text">@Model.Description</div>
     </div>
     <hr />
-    <!-- Текст тетради -->
+    <!-- Содержание тетради -->
     <div class="section text-section">
-        <h3 class="section-title">Содержание тетради</h3>
-        <div class="notebook-text">@Model.Text</div>
-    </div>
+    <h3 class="section-title">Страницы тетради</h3>
+    @if(Model.Pages.Any())
+    {
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            @foreach(var nbpage in Model.Pages)
+            {
+                <a asp-action="Details" asp-controller="NotebookPages" asp-route-id="@nbpage.Id" 
+                   style="display: block; padding: 15px; background: white; border-radius: 8px; 
+                          border-left: 4px solid #4CAF50; text-decoration: none; color: inherit;
+                          transition: all 0.2s ease;">
+                    <div style="font-weight: 600; color: #E65100; margin-bottom: 5px;">@nbpage.Theme</div>
+                    <div style="font-size: 0.85rem; color: #FF9800;">Создано: @nbpage.CreationDate.ToString("dd.MM.yyyy HH:mm")</div>
+                </a>
+            }
+        </div>
+        <form asp-action="Create" asp-controller="NotebookPages" method="post" style="margin-top: 15px;">
+            <input type="hidden" name="notebookId" value="@Model.Id" />
+            <button type="submit" style="width: 100%; padding: 12px; background: #4CAF50; color: white;
+                                         border: none; border-radius: 6px; font-size: 1rem; font-weight: 600;
+                                         cursor: pointer;">
+                📄 Создать новую страницу
+            </button>
+        </form>
+    }
+    else
+    {
+        <div style="text-align: center; padding: 40px 20px;">
+            <p style="color: #666; margin-bottom: 20px;">В этой тетради пока нет страниц</p>
+            <form asp-action="Create" asp-controller="NotebookPages" method="post">
+                <input type="hidden" name="notebookId" value="@Model.Id" />
+                <button type="submit" style="padding: 15px 30px; background: #4CAF50; color: white;
+                                             border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600;
+                                             cursor: pointer;">
+                    📄 Создать первую страницу
+                </button>
+            </form>
+        </div>
+    }
+</div>
 
     <!-- Кнопки управления -->
     <div class="actions-container">

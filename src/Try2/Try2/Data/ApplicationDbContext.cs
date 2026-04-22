@@ -21,6 +21,7 @@ namespace Try2.Data
         public DbSet<Tag> Tags { get; set; }
         public DbSet<PostTag> PostTags { get; set; }
         public DbSet<UserTag> UserTags { get; set; }
+        public DbSet<NotebookPage> NotebookPages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -39,6 +40,13 @@ namespace Try2.Data
                 .WithMany(u => u.StudyGroups)
                 .HasForeignKey(sg => sg.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // NotebookPages отношения
+            modelBuilder.Entity<NotebookPage>()
+                .HasOne(p => p.Notebook)
+                .WithMany(n => n.Pages)
+                .HasForeignKey(p => p.NotebookId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Post -> User (1:M)
             modelBuilder.Entity<Post>()

@@ -61,7 +61,6 @@ namespace Try2.Controllers
             {
                 Name = name,
                 Description = description,
-                Text = text,
                 CreationDate = DateTime.UtcNow
             };
 
@@ -89,6 +88,7 @@ namespace Try2.Controllers
             var notebook = await _context.Notebooks
                 .Include(n => n.StudyGroups)
                     .ThenInclude(sg => sg.User)
+                .Include(n => n.Pages)
                 .FirstOrDefaultAsync(n => n.Id == id);
 
             if (notebook == null)
@@ -115,7 +115,6 @@ namespace Try2.Controllers
             {
                 Id = notebook.Id,
                 Name = notebook.Name,
-                Text = notebook.Text,
                 Description = notebook.Description,
                 CreationDate = notebook.CreationDate,
                 CanEdit = myRole.UserRole == StudyGroupRole.Creator,
@@ -125,7 +124,13 @@ namespace Try2.Controllers
                     Username = sg.User.Username,
                     Nickname = sg.User.Nickname,
                     Role = sg.UserRole
-                }).ToList()
+                }).ToList(),
+                Pages = notebook.Pages.Select(p => new NotebookPageSummaryDto
+                {
+                    Id = p.Id,
+                    Theme = p.Theme,
+                    CreationDate = p.CreationDate
+                }).OrderBy(p => p.CreationDate).ToList()
             };
 
             return View(model);
@@ -156,7 +161,6 @@ namespace Try2.Controllers
                 Id = notebook.Id,
                 Name = notebook.Name,
                 Description = notebook.Description,
-                Text = notebook.Text,
                 CreationDate = notebook.CreationDate,
                 CanEdit = true,
                 Users = notebook.StudyGroups.Select(sg => new NotebookUserDto
@@ -167,7 +171,6 @@ namespace Try2.Controllers
                     Role = sg.UserRole
                 }).ToList()
             };
-
             return View(model);
         }
 
@@ -183,7 +186,6 @@ namespace Try2.Controllers
 
             notebook.Name = model.Name;
             notebook.Description = model.Description;
-            notebook.Text = model.Text;
 
             await _context.SaveChangesAsync();
 
