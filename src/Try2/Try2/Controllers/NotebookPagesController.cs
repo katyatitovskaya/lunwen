@@ -151,5 +151,43 @@ namespace Try2.Controllers
             return RedirectToAction(nameof(Details), new { id = currentPageId });
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var page = await _context.NotebookPages
+                .Include(p => p.Notebook)
+                    .ThenInclude(n => n.Pages)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (page == null)
+                return NotFound();
+
+            var notebookId = page.NotebookId;
+            var pages = page.Notebook.Pages.OrderBy(p => p.CreationDate).ToList();
+            var currentIndex = pages.FindIndex(p => p.Id == id);
+
+            _context.NotebookPages.Remove(page);
+            await _context.SaveChangesAsync();
+
+            // Определяем, на какую страницу перейти
+            if (pages.Count > 1)
+            {
+                if (currentIndex > 0)
+                {
+                    // Переход на предыдущую страницу
+                    return RedirectToAction(nameof(Details), new { id = pages[currentIndex - 1].Id });
+                }
+                else if (currentIndex < pages.Count - 1)
+                {
+                    // Переход на следующую страницу
+                    return RedirectToAction(nameof(Details), new { id = pages[currentIndex + 1].Id });
+                }
+            }
+
+            // Если страниц не осталось - возвращаемся к тетради
+            return RedirectToAction("Details", "Notebooks", new { id = notebookId });
+        }
+
     }
 }
