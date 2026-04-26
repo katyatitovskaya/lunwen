@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -239,6 +240,7 @@ namespace Try2.Controllers
             return RedirectToAction("Profile", new { id = user.Id });
         }
 
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id, string password)
@@ -250,7 +252,8 @@ namespace Try2.Controllers
 
             var user = await _context.Users
                 .Include(u => u.Posts)
-                .ThenInclude(p => p.Likes)
+                    .ThenInclude(p => p.Likes)
+                .Include(u => u.StudyGroups) 
                 .FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null)
@@ -263,35 +266,52 @@ namespace Try2.Controllers
                 return RedirectToAction("Edit");
             }
 
-            // Удаляем подписки
-            var subs = _context.Subscriptions
-                .Where(s => s.FollowerId == id || s.TargetUserId == id);
+            
+            var userNotebookIds = user.StudyGroups.Select(sg => sg.NotebookId).ToList();
+
+            var notebooksToDelete = await _context.Notebooks
+                .Where(n => userNotebookIds.Contains(n.Id))
+                .Where(n => n.StudyGroups.Count == 1) 
+                .Where(n => n.StudyGroups.Any(sg => sg.UserId == id)) 
+                .Include(n => n.Pages) 
+                .ToListAsync();
+
+            
+            if (notebooksToDelete.Any())
+            {
+                _context.Notebooks.RemoveRange(notebooksToDelete);
+            }
+
+            var remainingStudyGroups = await _context.StudyGroups
+                .Where(sg => sg.UserId == id)
+                .ToListAsync();
+            _context.StudyGroups.RemoveRange(remainingStudyGroups);
+
+            var subs = await _context.Subscriptions
+                .Where(s => s.FollowerId == id || s.TargetUserId == id)
+                .ToListAsync();
             _context.Subscriptions.RemoveRange(subs);
 
-            // Удаляем лайки пользователя
-            var postlikes = _context.PostLikes.Where(l => l.UserId == id);
-            _context.PostLikes.RemoveRange(postlikes);
+            var postLikes = await _context.PostLikes
+                .Where(l => l.UserId == id)
+                .ToListAsync();
+            _context.PostLikes.RemoveRange(postLikes);
 
-            var commentlikes = _context.CommentLikes.Where(l => l.UserId == id);
-            _context.CommentLikes.RemoveRange(commentlikes);
+            var commentLikes = await _context.CommentLikes
+                .Where(l => l.UserId == id)
+                .ToListAsync();
+            _context.CommentLikes.RemoveRange(commentLikes);
 
-            var studyGroups = _context.StudyGroups.Where(l => l.UserId == id);
-            _context.StudyGroups.RemoveRange(studyGroups);
-
-            // Удаляем посты пользователя
             _context.Posts.RemoveRange(user.Posts);
 
-            // Удаляем пользователя
             _context.Users.Remove(user);
 
             await _context.SaveChangesAsync();
 
-            // Выход из системы
             await HttpContext.SignOutAsync();
 
             return RedirectToAction("Index", "Home");
         }
-
 
     }
 }
