@@ -1184,12 +1184,29 @@
 
     function debouncedSave() { if (saveTimeout) clearTimeout(saveTimeout); saveTimeout = setTimeout(() => saveCanvasState(), 300); }
 
-    function saveCanvasState() {
+        function saveCanvasState() {
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+        if (!token) {
+            console.error('Anti-Forgery Token not found');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('id', @Model.Id);
+        formData.append('theme', document.getElementById('themeInput').value || '@Model.Theme');
+        formData.append('jsonContents', JSON.stringify({
+            image: mainCanvas.toDataURL('image/jpeg', 0.7),
+            texts: textElements
+        }));
+        formData.append('__RequestVerificationToken', token);
+
         fetch('@Url.Action("Save", new { id = Model.Id })', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `id=@Model.Id&theme=${encodeURIComponent(document.getElementById('themeInput').value || '@Model.Theme')}&jsonContents=${encodeURIComponent(JSON.stringify({ image: mainCanvas.toDataURL('image/png'), texts: textElements }))}`
-        }).catch(e => {});
+            body: formData
+        }).then(response => response.json())
+          .then(data => console.log('Saved:', data))
+          .catch(error => console.error('Save error:', error));
     }
 
     function zoomIn() { scale = Math.min(scale * 1.2, 3); updateZoomDisplay(); updateEraserCursorSize(); redrawCanvas(); renderTextElements(); updateSelectedAreaPreview(); }
